@@ -10,7 +10,10 @@ import {
   Building2,
   Eye,
   ArrowLeft,
-  ArrowRight
+  ArrowRight,
+  Save,
+  RefreshCw,
+  Database
 } from 'lucide-react';
 import { StudentRecord } from '../types';
 import { exportarResultadosPrediccion } from '../utils/colabEngine';
@@ -20,6 +23,10 @@ interface Paso4ResultadosSectionProps {
   onSelectStudent: (record: StudentRecord) => void;
   onPrevStep?: () => void;
   onGoToSimulator?: () => void;
+  onSaveData?: () => void;
+  isSaving?: boolean;
+  isSaved?: boolean;
+  lastSavedAt?: string | null;
 }
 
 export const Paso4ResultadosSection: React.FC<Paso4ResultadosSectionProps> = ({
@@ -27,6 +34,10 @@ export const Paso4ResultadosSection: React.FC<Paso4ResultadosSectionProps> = ({
   onSelectStudent,
   onPrevStep,
   onGoToSimulator,
+  onSaveData,
+  isSaving = false,
+  isSaved = false,
+  lastSavedAt = null,
 }) => {
   const [search, setSearch] = useState('');
   const [riskFilter, setRiskFilter] = useState<'Todos' | 'Normal' | 'En Riesgo'>('Todos');
@@ -103,6 +114,38 @@ export const Paso4ResultadosSection: React.FC<Paso4ResultadosSectionProps> = ({
               </button>
             )}
 
+            {/* BOTÓN GUARDAR INFORMACIÓN */}
+            {onSaveData && (
+              <button
+                type="button"
+                onClick={onSaveData}
+                disabled={isSaving}
+                className={`px-4 py-2.5 rounded-xl font-bold text-xs tracking-wide shadow-sm transition-all cursor-pointer flex items-center gap-2 ${
+                  isSaved
+                    ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-500/20'
+                    : 'bg-blue-600 hover:bg-blue-500 text-white shadow-blue-500/20 ring-2 ring-blue-400/50'
+                } disabled:opacity-50`}
+                title="Guarda la información en el servidor para que esté accesible en cualquier otro navegador"
+              >
+                {isSaving ? (
+                  <>
+                    <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                    <span>Guardando en servidor...</span>
+                  </>
+                ) : isSaved ? (
+                  <>
+                    <CheckCircle2 className="w-3.5 h-3.5 text-white" />
+                    <span>Información Guardada</span>
+                  </>
+                ) : (
+                  <>
+                    <Save className="w-3.5 h-3.5" />
+                    <span>Guardar Información</span>
+                  </>
+                )}
+              </button>
+            )}
+
             <button
               type="button"
               onClick={() => exportarResultadosPrediccion(records, 'csv')}
@@ -125,7 +168,7 @@ export const Paso4ResultadosSection: React.FC<Paso4ResultadosSectionProps> = ({
               <button
                 type="button"
                 onClick={onGoToSimulator}
-                className="px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs tracking-wide shadow-xs transition-colors cursor-pointer flex items-center gap-1.5"
+                className="px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold text-xs tracking-wide border border-slate-300 dark:border-slate-700 transition-colors cursor-pointer flex items-center gap-1.5"
               >
                 <span>Simulador en Vivo</span>
                 <ArrowRight className="w-3.5 h-3.5" />
@@ -133,6 +176,28 @@ export const Paso4ResultadosSection: React.FC<Paso4ResultadosSectionProps> = ({
             )}
           </div>
         </div>
+
+        {/* Banner de Sincronización Multi-Navegador */}
+        {isSaved && (
+          <div className="mt-4 p-3.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-800/60 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-emerald-900 dark:text-emerald-200 animate-in fade-in duration-300">
+            <div className="flex items-center gap-2.5">
+              <div className="h-6 w-6 rounded-full bg-emerald-600 text-white flex items-center justify-center shrink-0">
+                <CheckCircle2 className="w-3.5 h-3.5" />
+              </div>
+              <div>
+                <span className="font-bold">Información guardada en el servidor:</span>
+                <span className="ml-1 text-emerald-800 dark:text-emerald-300">
+                  Esta base y las predicciones 2026 están almacenadas permanentemente. Al abrir este enlace en <strong>cualquier otro navegador o dispositivo</strong>, la información cargará automáticamente.
+                </span>
+              </div>
+            </div>
+            {lastSavedAt && (
+              <span className="font-mono text-[11px] text-emerald-700 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-900/50 px-2.5 py-1 rounded-md shrink-0">
+                Guardado: {new Date(lastSavedAt).toLocaleTimeString()}
+              </span>
+            )}
+          </div>
+        )}
 
         {/* 2026 KPI Stats */}
         <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 pt-5 mt-5 border-t border-slate-100 dark:border-slate-800 text-xs">

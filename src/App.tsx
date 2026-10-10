@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Navbar } from './components/Navbar';
 import { Paso1CargaSection } from './components/Paso1CargaSection';
 import { Paso2EstandarizacionSection } from './components/Paso2EstandarizacionSection';
@@ -14,10 +14,10 @@ import {
   exportarResultadosPrediccion 
 } from './utils/colabEngine';
 import { buildColabSampleRecords, INITIAL_COLAB_METRICS } from './data/colabMockData';
-import { Check, Cpu, Download, Sparkles, FileSpreadsheet, ArrowRight, Building2, BarChart3, Database, Sliders } from 'lucide-react';
+import { Check, Cpu, Sparkles, Database, Sliders, BarChart3, CheckCircle2, Save, RefreshCw } from 'lucide-react';
 
 export default function App() {
-  // Persistencia en localStorage para que la base de datos no se pierda al recargar
+  // Estado inicial
   const [records, setRecords] = useState<StudentRecord[]>(() => {
     try {
       const saved = localStorage.getItem('rf_academic_records');
@@ -48,6 +48,11 @@ export default function App() {
   const [selectedStudent, setSelectedStudent] = useState<StudentRecord | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
+  // Estados de persistencia en servidor (multi-navegador)
+  const [isSaving, setIsSaving] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
+  const [lastSavedAt, setLastSavedAt] = useState<string | null>(null);
+
   const showToast = (msg: string) => {
     setToastMessage(msg);
     setTimeout(() => {
@@ -55,15 +60,83 @@ export default function App() {
     }, 4500);
   };
 
-  // Guardar datos en almacenamiento persistente
-  const persistData = (newRecords: StudentRecord[], newMetrics: ColabEvaluationMetrics) => {
-    setRecords(newRecords);
-    setMetrics(newMetrics);
+  // Cargar dataset del servidor al iniciar (permite abrir en cualquier navegador y ver los datos guardados)
+  useEffect(() => {
+    async function fetchServerData() {
+      try {
+        const resp = await fetch('/api/dataset');
+        if (resp.ok) {
+          const data = await resp.json();
+          if (data.hasData && Array.isArray(data.records) && data.records.length > 0) {
+            setRecords(data.records);
+            if (data.metrics) {
+              setMetrics(data.metrics);
+            }
+            if (data.currentPhase) {
+              setCurrentPhase(data.currentPhase);
+            }
+            setIsSaved(true);
+            setLastSavedAt(data.savedAt);
+            showToast(`¡Información sincronizada del servidor! ${data.records.length} registros cargados (disponibles en este y otros navegadores).`);
+            
+            // Sincronizar también con localStorage
+            try {
+              localStorage.setItem('rf_academic_records', JSON.stringify(data.records));
+              if (data.metrics) localStorage.setItem('rf_academic_metrics', JSON.stringify(data.metrics));
+              if (data.savedAt) localStorage.setItem('rf_academic_saved_at', data.savedAt);
+            } catch {}
+          }
+        }
+      } catch (err) {
+        console.warn('Servidor local o API no disponible temporalmente:', err);
+      }
+    }
+
+    fetchServerData();
+  }, []);
+
+  // Función explícita para Guardar la información en el servidor (para que esté disponible en cualquier otro navegador)
+  const handleSaveData = async () => {
+    if (records.length === 0) {
+      showToast('No hay datos procesados para guardar. Realiza la carga de datos primero.');
+      return;
+    }
+
     try {
-      localStorage.setItem('rf_academic_records', JSON.stringify(newRecords));
-      localStorage.setItem('rf_academic_metrics', JSON.stringify(newMetrics));
-    } catch (e) {
-      console.warn('No se pudo guardar en almacenamiento local:', e);
+      setIsSaving(true);
+      const resp = await fetch('/api/dataset', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          records,
+          metrics,
+          currentPhase: 'paso4_resultados',
+        }),
+      });
+
+      if (!resp.ok) {
+        throw new Error('Error al responder el servidor');
+      }
+
+      const resData = await resp.json();
+      const now = resData.savedAt || new Date().toISOString();
+      setIsSaved(true);
+      setLastSavedAt(now);
+
+      // Guardar también en localStorage para máxima redundancia
+      try {
+        localStorage.setItem('rf_academic_records', JSON.stringify(records));
+        localStorage.setItem('rf_academic_metrics', JSON.stringify(metrics));
+        localStorage.setItem('rf_academic_saved_at', now);
+      } catch (e) {
+        console.warn(e);
+      }
+
+      showToast('¡Información guardada con éxito en el servidor! Ahora estará disponible si abres la aplicación en cualquier otro navegador.');
+    } catch (err: any) {
+      showToast(err.message || 'Error al guardar la información en el servidor.');
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -71,48 +144,62 @@ export default function App() {
   const handleLoadDemo = () => {
     const demo = buildColabSampleRecords();
     const { records: trainedRecords, metrics: evaluatedMetrics } = entrenarYPredecirRandomForest(demo, 100);
-    persistData(trainedRecords, evaluatedMetrics);
-    showToast(`Dataset Demo cargado y guardado (${demo.length} registros en 5 Sedes). Partición 2020-2025 y 2026 aplicada.`);
+    setRecords(trainedRecords);
+    setMetrics(evaluatedMetrics);
+    setIsSaved(false);
+    showToast(`Dataset Demo cargado (${demo.length} registros en 5 Sedes). Partición 2020-2025 y 2026 lista para guardar.`);
   };
 
-  // Limpiar / Reiniciar a modo sin datos
-  const handleClear = () => {
+  // Limpiar / Reiniciar en servidor y navegador
+  const handleClear = async () => {
+    try {
+      await fetch('/api/dataset', { method: 'DELETE' });
+    } catch {}
     setRecords([]);
+    setIsSaved(false);
+    setLastSavedAt(null);
     try {
       localStorage.removeItem('rf_academic_records');
       localStorage.removeItem('rf_academic_metrics');
+      localStorage.removeItem('rf_academic_saved_at');
     } catch {}
     setCurrentPhase('paso1_carga');
-    showToast('El sistema ha sido reiniciado a modo sin datos. Listo para cargar tu archivo.');
+    showToast('El sistema y el almacenamiento han sido reiniciados a modo sin datos.');
   };
 
-  // Carga de archivo Excel o CSV final con guardado persistente
+  // Carga de archivo Excel o CSV final
   const handleFileUpload = async (file: File) => {
     try {
       showToast(`Leyendo y procesando archivo "${file.name}"...`);
       const res = await procesarDatasetColab(file);
-      persistData(res.records, res.metrics);
-      showToast(`¡Éxito! Base de datos guardada con regla metodológica y 5 sedes (${res.records.length} registros guardados).`);
+      setRecords(res.records);
+      setMetrics(res.metrics);
+      setIsSaved(false);
+      showToast(`¡Éxito! Archivo procesado con regla metodológica y 5 sedes (${res.records.length} registros listos).`);
       setCurrentPhase('paso2_estandarizar');
     } catch (err: any) {
       showToast(err.message || 'Error al procesar el archivo.');
     }
   };
 
-  // Reentrenar con número de árboles especificado y guardar
+  // Reentrenar con número de árboles especificado
   const handleRetrain = (trees: number) => {
     if (records.length === 0) return;
     const { records: updated, metrics: newM } = entrenarYPredecirRandomForest(records, trees);
-    persistData(updated, newM);
-    showToast(`Random Forest reentrenado con ${trees} árboles y guardado.`);
+    setRecords(updated);
+    setMetrics(newM);
+    setIsSaved(false);
+    showToast(`Random Forest reentrenado con ${trees} árboles.`);
   };
 
-  // Agregar alumno desde el simulador y guardar
+  // Agregar alumno desde el simulador
   const handleAddStudentRecord = (newRecord: StudentRecord) => {
     const updatedList = [newRecord, ...records];
     const { records: updated, metrics: newM } = entrenarYPredecirRandomForest(updatedList, metrics.n_estimators);
-    persistData(updated, newM);
-    showToast(`Alumno "${newRecord.nombre}" (${newRecord.sede}) guardado en la cohorte 2026.`);
+    setRecords(updated);
+    setMetrics(newM);
+    setIsSaved(false);
+    showToast(`Alumno "${newRecord.nombre}" (${newRecord.sede}) evaluado en la cohorte 2026.`);
   };
 
   return (
@@ -122,20 +209,23 @@ export default function App() {
       <Navbar
         currentPhase={currentPhase}
         onSelectPhase={setCurrentPhase}
-        onOpenImport={() => setCurrentPhase('paso1_carga')}
         totalStudents={records.length}
         onClearData={handleClear}
         onLoadDemoData={handleLoadDemo}
         records={records}
+        onSaveData={handleSaveData}
+        isSaving={isSaving}
+        isSaved={isSaved}
+        lastSavedAt={lastSavedAt}
       />
 
       {/* Floating Notification Toast */}
       {toastMessage && (
-        <div className="fixed bottom-5 right-5 z-50 bg-slate-900 text-white px-4 py-2.5 rounded-xl shadow-xl border border-slate-700 flex items-center gap-2.5 text-xs animate-in slide-in-from-bottom-5 duration-300">
+        <div className="fixed bottom-5 right-5 z-50 bg-slate-900 text-white px-4 py-2.5 rounded-xl shadow-xl border border-slate-700 flex items-center gap-2.5 text-xs animate-in slide-in-from-bottom-5 duration-300 max-w-md">
           <div className="h-5 w-5 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
-            <Check className="h-3.5 w-3.5" />
+            <Check className="h-3.5 h-3.5" />
           </div>
-          <span>{toastMessage}</span>
+          <span className="leading-tight">{toastMessage}</span>
         </div>
       )}
 
@@ -193,6 +283,7 @@ export default function App() {
               }`}
             >
               <span>4. Predicciones 2026</span>
+              {isSaved && <CheckCircle2 className="w-3 h-3 text-emerald-300 ml-0.5" />}
             </button>
 
             <button
@@ -217,11 +308,20 @@ export default function App() {
               <span>5 Sedes</span>
               <span>·</span>
               <span>Árboles: <strong className="font-mono">{metrics.n_estimators}</strong></span>
+              {isSaved && (
+                <>
+                  <span>·</span>
+                  <span className="text-emerald-600 font-semibold flex items-center gap-1">
+                    <CheckCircle2 className="w-3.5 h-3.5" />
+                    <span>Guardado en Servidor</span>
+                  </span>
+                </>
+              )}
             </div>
           )}
         </div>
 
-        {/* Phase content rendering with sleek transitions */}
+        {/* Phase content rendering */}
         {currentPhase === 'paso1_carga' && (
           <Paso1CargaSection
             records={records}
@@ -255,6 +355,10 @@ export default function App() {
             onPrevStep={() => setCurrentPhase('paso3_entrenamiento')}
             onGoToSimulator={() => setCurrentPhase('paso5_simulador')}
             onSelectStudent={setSelectedStudent}
+            onSaveData={handleSaveData}
+            isSaving={isSaving}
+            isSaved={isSaved}
+            lastSavedAt={lastSavedAt}
           />
         )}
 
