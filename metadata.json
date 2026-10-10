@@ -1,0 +1,6 @@
+{
+  "name": "Dashboard de Predicción Random Forest - Rendimiento Académico",
+  "description": "Dashboard interactivo para visualizar predicciones de Random Forest sobre el rendimiento y riesgo académico con partición temporal 2020-2026, estandarización de notas y análisis por las 5 sedes.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
