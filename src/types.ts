@@ -21,7 +21,7 @@ export interface StudentRecord {
   anio_academico: number; // Año_Academico (2020..2026)
   sexo: 'Femenino' | 'Masculino' | 'Otro'; // Sexo
   sede: string;          // Sede (5 sedes: Sede Central, Sede Norte, Sede Sur, Sede Este, Sede Callao)
-  grado?: string;        // Grado (opcional)
+  grado: string;         // Grado académico (ej. 1° a 5° de Secundaria)
   
   // Cursos estandarizados
   cursos: Record<string, StudentCourseGrade>;
@@ -45,6 +45,36 @@ export interface StudentRecord {
   };
   cursos_en_riesgo?: string[]; // Cursos con nota 0 (C)
   tipo_conjunto: 'entrenamiento' | 'prueba_2026';
+}
+
+export interface PurgedRecord {
+  id: string;
+  ID_Estudiante: string;
+  nombre: string;
+  sede: string;
+  grado: string;
+  anio_academico: number;
+  sexo: 'Femenino' | 'Masculino' | 'Otro';
+  motivo: string;
+  cursosAfectados: Array<{
+    curso: string;
+    valorOriginal: string | number;
+    tipoFalla: 'guion' | 'vacio' | 'invalido';
+  }>;
+}
+
+export interface DepuracionStats {
+  total_leidos: number;
+  total_validos: number;
+  total_eliminados: number;
+  porcentaje_eliminados: number;
+  desglose_motivos: {
+    con_guion: number;
+    vacios: number;
+    otros_invalidos: number;
+  };
+  eliminados_por_grado: Record<string, number>;
+  eliminados_por_sede: Record<string, number>;
 }
 
 export interface ColabEvaluationMetrics {
@@ -79,6 +109,16 @@ export interface ColabEvaluationMetrics {
     normal: number;
     tasa_riesgo: number; // Porcentaje 0 a 100
   }>;
+  // Análisis y validación por Grados Académicos
+  grados_analisis: Array<{
+    grado: string;
+    total: number;
+    en_riesgo: number;
+    normal: number;
+    tasa_riesgo: number; // Porcentaje 0 a 100
+  }>;
+  // Auditoría de depuración de datos
+  depuracion_estadisticas: DepuracionStats;
   // Detonantes por curso (frecuencia de C / 0 y feature importance)
   cursos_falla: Array<{
     curso: string;
@@ -109,6 +149,7 @@ export interface FilterState {
   searchQuery: string;
   year: number | 'Todos' | 'Entrenamiento (2020-2025)' | 'Prueba (2026)';
   sede: string; // 'Todas' o una de las 5 sedes
+  grado: string; // 'Todos' o grado específico (ej. '1° de Secundaria')
   risk: any;
   gender: any;
   country?: string;
