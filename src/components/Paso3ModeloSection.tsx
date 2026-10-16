@@ -96,10 +96,12 @@ python src/pipeline_rf_tesis.py --datos data/notas.xlsx --salida resultados/ --n
         </p>
       </Card>
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* Las tres dimensiones de la tesis primero; la tabla completa de métricas está más abajo */}
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+        <Stat label="Sensibilidad (D1)" value={pct(opt.sensibilidad_recall)} tone="emerald" hint={`IC 95% ${ic(inf, 'sensibilidad_recall', 'pct')}`} />
+        <Stat label="Precisión (D2)" value={pct(opt.precision)} hint={`IC 95% ${ic(inf, 'precision', 'pct')}`} />
+        <Stat label="F1-Score (D3)" value={num(opt.f1)} hint={`IC 95% ${ic(inf, 'f1', 'num')}`} />
         <Stat label={`PR-AUC ${inf.particion.prueba}`} value={num(opt.pr_auc)} tone="blue" hint={`IC 95% ${ic(inf, 'pr_auc', 'num')}`} />
-        <Stat label="Sensibilidad" value={pct(opt.sensibilidad_recall)} tone="emerald" hint={`IC 95% ${ic(inf, 'sensibilidad_recall', 'pct')}`} />
-        <Stat label="Precisión" value={pct(opt.precision)} hint={`IC 95% ${ic(inf, 'precision', 'pct')}`} />
         <Stat label="Umbral" value={num(inf.umbral.valor)} tone="amber" hint={inf.umbral.criterio} />
       </div>
 
