@@ -274,13 +274,8 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--anio-dir", type=Path, nargs="+", required=True, help="carpetas <AÑO> en bruto")
     ap.add_argument("--salida", type=Path, required=True)
-    ap.add_argument("--areas-extra", nargs="*", default=[], metavar="AREA=Nombre",
-                    help='áreas adicionales a exportar, p. ej. "TUTORÍA=Tutoria" (análisis complementario)')
     ap.add_argument("--clave", type=Path, default=Path(__file__).resolve().parents[1] / "data" / "clave_id.txt")
     a = ap.parse_args()
-    for par in a.areas_extra:
-        area, _, nombre = par.partition("=")
-        AREAS[area.strip()] = nombre.strip() or area.strip().title()
     clave = obtener_clave(a.clave)
     filas, log, flujos = [], [], {}
     for d in a.anio_dir:
