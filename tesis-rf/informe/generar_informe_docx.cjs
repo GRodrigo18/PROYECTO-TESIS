@@ -223,9 +223,28 @@ c.push(p([b("Con el umbral elegido, "), `${hipPrim.map((h) => `${h.hipotesis} ($
 c.push(p([b("Con el umbral 0,5, "), `${hipSec.map((h) => `${h.hipotesis} (${NOMBRE_MET[h.metrica].toLowerCase()}) ${dec(h)}`).join("; ")}. El modelo reduce fuertemente las falsas alarmas a costa de detectar menos casos.`]));
 c.push(p("Estos resultados indican que el aporte del Random Forest no está en detectar más estudiantes que la regla actual (que ya los detecta casi todos), sino en ordenarlos por nivel de riesgo y permitir elegir el equilibrio entre detección y falsas alarmas según la capacidad de intervención de la institución. Los resultados deben reportarse tal como se obtuvieron; el umbral no debe ajustarse después de ver la prueba."));
 
-// 7. Observaciones
-c.push(h1("7. Observaciones para alinear el capítulo II"));
-c.push(vineta([b("Variables: "), "el plan menciona asistencia y conducta, pero los datos recibidos solo contienen notas, sede, grado, sección y sexo. El modelo no usa asistencia ni conducta."]));
+// 7. Despliegue 2026
+const t26 = T.prediccion_2026_total;
+c.push(h1(`7. Despliegue: aplicación del modelo a la cohorte ${part.prediccion}`));
+c.push(p(`En la fase de despliegue de CRISP-DM, el modelo final (reentrenado con 2020-${part.prueba} y los mismos hiperparámetros) se aplicó a los ${miles(t26.Estudiantes)} estudiantes de ${part.prediccion} con sus notas de B1 y B2. Como el año escolar aún no cierra, no existe todavía la nota final: estos resultados son una predicción y no se calculan métricas sobre ellos. Podrán validarse cuando se registren los promedios finales de ${part.prediccion}.`));
+c.push(titulo("Tabla", `Estudiantes con alerta de bajo rendimiento en ${part.prediccion} por sede.`));
+const fila26 = (k) => (r) => [String(r[k]), miles(r.Estudiantes), miles(r["Con alerta"]), num(r["% con alerta"], 1) + " %", num(r["Probabilidad media"])];
+const tot26 = ["Total", miles(t26.Estudiantes), miles(t26["Con alerta"]), num(t26["% con alerta"], 1) + " %", num(t26["Probabilidad media"])];
+tot26._negrita = true;
+c.push(tabla(["Sede", "Estudiantes", "Con alerta", "% con alerta", "Probabilidad media"],
+  [...T.prediccion_2026_sede.map(fila26("Sede")), tot26], [30, 17, 17, 17, 19]));
+c.push(fuente());
+c.push(titulo("Tabla", `Estudiantes con alerta de bajo rendimiento en ${part.prediccion} por grado.`));
+c.push(tabla(["Grado", "Estudiantes", "Con alerta", "% con alerta", "Probabilidad media"],
+  T.prediccion_2026_grado.map((r) => [`${r.Grado}.°`, miles(r.Estudiantes), miles(r["Con alerta"]), num(r["% con alerta"], 1) + " %", num(r["Probabilidad media"])]),
+  [30, 17, 17, 17, 19]));
+c.push(fuente());
+c.push(p(`Con el umbral elegido (${num(opt.umbral)}), ${miles(t26["Con alerta"])} estudiantes (${num(t26["% con alerta"], 1)} %) reciben una alerta temprana. La lista individual, identificada solo por código seudónimo, se entrega a la institución para la intervención tutorial y no se publica en el documento.`));
+
+// 8. Observaciones
+c.push(h1("8. Observaciones para alinear el capítulo II"));
+c.push(vineta([b("Asistencia: "), "los datos exportados no contienen un registro de asistencia ordenado por estudiante, por lo que no se usó como variable. Conviene retirarla de la operacionalización o declararla como limitación del estudio."]));
+c.push(vineta([b("Conducta: "), "no existe una columna de conducta. El área de Tutoría tiene notas en todos los años y sedes, pero solo podría usarse como indicador de comportamiento si la institución confirma que esa calificación evalúa la conducta; el modelo presentado no la incluye."]));
 c.push(vineta([b("Criterio de exclusión: "), "el plan indica descartar registros con más de 30 % de valores nulos. El criterio aplicado es más estricto: se excluye todo registro con alguna nota faltante en B1, B2 o PF de las cinco áreas, porque esas notas son las variables y la etiqueta."]));
 c.push(vineta([b("Retirados: "), "el plan excluye a los alumnos retirados. Los datos no traen una marca de retiro; un retiro se refleja como notas faltantes y queda excluido por V5 o V6."]));
 c.push(vineta([b("Comparación de las hipótesis: "), "se tomó como situación actual la regla «alguna nota C en B1-B2». Si la institución identifica el riesgo de otra forma, conviene describirla y usarla como referencia."]));

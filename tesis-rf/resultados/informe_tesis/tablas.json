@@ -1,4 +1,78 @@
 {
+ "prediccion_2026_sede": [
+  {
+   "Sede": "Avantgard Huaura",
+   "Estudiantes": 295.0,
+   "Con alerta": 42.0,
+   "% con alerta": 14.2,
+   "Probabilidad media": 0.047
+  },
+  {
+   "Sede": "Avantgard Lima",
+   "Estudiantes": 472.0,
+   "Con alerta": 21.0,
+   "% con alerta": 4.4,
+   "Probabilidad media": 0.018
+  },
+  {
+   "Sede": "Central",
+   "Estudiantes": 356.0,
+   "Con alerta": 86.0,
+   "% con alerta": 24.2,
+   "Probabilidad media": 0.074
+  },
+  {
+   "Sede": "Industrial",
+   "Estudiantes": 366.0,
+   "Con alerta": 46.0,
+   "% con alerta": 12.6,
+   "Probabilidad media": 0.043
+  },
+  {
+   "Sede": "La Ascensión",
+   "Estudiantes": 443.0,
+   "Con alerta": 129.0,
+   "% con alerta": 29.1,
+   "Probabilidad media": 0.103
+  }
+ ],
+ "prediccion_2026_grado": [
+  {
+   "Grado": 1,
+   "Estudiantes": 393.0,
+   "Con alerta": 66.0,
+   "% con alerta": 16.8,
+   "Probabilidad media": 0.057
+  },
+  {
+   "Grado": 2,
+   "Estudiantes": 397.0,
+   "Con alerta": 96.0,
+   "% con alerta": 24.2,
+   "Probabilidad media": 0.084
+  },
+  {
+   "Grado": 3,
+   "Estudiantes": 389.0,
+   "Con alerta": 57.0,
+   "% con alerta": 14.7,
+   "Probabilidad media": 0.053
+  },
+  {
+   "Grado": 4,
+   "Estudiantes": 362.0,
+   "Con alerta": 53.0,
+   "% con alerta": 14.6,
+   "Probabilidad media": 0.045
+  },
+  {
+   "Grado": 5,
+   "Estudiantes": 391.0,
+   "Con alerta": 52.0,
+   "% con alerta": 13.3,
+   "Probabilidad media": 0.045
+  }
+ ],
  "preprocesamiento": [
   {
    "Año": 2020,
@@ -1552,5 +1626,11 @@
    "2025": true,
    "2026": true
   }
+ },
+ "prediccion_2026_total": {
+  "Estudiantes": 1932.0,
+  "Con alerta": 324.0,
+  "% con alerta": 16.8,
+  "Probabilidad media": 0.057
  }
 }

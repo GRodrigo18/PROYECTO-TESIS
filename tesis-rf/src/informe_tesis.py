@@ -297,13 +297,27 @@ def main():
     resumen = {"n_aulas_prueba": int(pr["aula"].nunique()), "flujo_total": tot.astype(int).to_dict(),
                "reglas": reglas.set_index("Regla")["Registros"].to_dict(),
                "mcnemar": inf["pruebas_mcnemar"], "hipotesis": hip}
-    tablas = {"preprocesamiento": t_flujo, "reglas": reglas, "tipos_problema": tipos,
+    # ------------------------------------------------------------------ 6. Despliegue: predicción 2026 (agregada)
+    p26 = pd.read_csv(a.resultados / "predicciones_2026.csv")
+    def resumen_2026(g):
+        return pd.Series({"Estudiantes": len(g), "Con alerta": int(g["alerta_riesgo"].sum()),
+                          "% con alerta": round(100 * g["alerta_riesgo"].mean(), 1),
+                          "Probabilidad media": round(g["probabilidad_riesgo"].mean(), 3)})
+    t26_sede = p26.groupby("sede").apply(resumen_2026).reset_index().rename(columns={"sede": "Sede"})
+    t26_grado = p26.groupby("grado").apply(resumen_2026).reset_index().rename(columns={"grado": "Grado"})
+    t26_total = resumen_2026(p26).to_dict()
+    t26_sede.to_csv(out / "tabla_prediccion_2026_por_sede.csv", index=False, encoding="utf-8-sig")
+    t26_grado.to_csv(out / "tabla_prediccion_2026_por_grado.csv", index=False, encoding="utf-8-sig")
+
+    tablas = {"prediccion_2026_sede": t26_sede, "prediccion_2026_grado": t26_grado,
+              "preprocesamiento": t_flujo, "reglas": reglas, "tipos_problema": tipos,
               "exclusiones_sede": det_sede.reset_index(), "configuracion": pd.DataFrame(conf),
               "metricas": t_met.rename_axis("Métrica").reset_index(), "importancia": imp.iloc[::-1].assign(etiqueta=lambda d: d["variable"].map(etiqueta_variable)),
               "hipotesis": t_hip}
     (out / "tablas.json").write_text(json.dumps(
         {k: json.loads(v.to_json(orient="records", force_ascii=False)) for k, v in tablas.items()}
-        | {"informe": inf, "n_aulas_prueba": int(pr["aula"].nunique()), "perfil": perfil},
+        | {"informe": inf, "n_aulas_prueba": int(pr["aula"].nunique()), "perfil": perfil,
+           "prediccion_2026_total": {k: float(v) for k, v in t26_total.items()}},
         ensure_ascii=False, indent=1), encoding="utf-8")
     (out / "resumen.json").write_text(json.dumps(resumen, ensure_ascii=False, indent=2, default=str), encoding="utf-8")
     print(t_flujo.to_string(index=False))
