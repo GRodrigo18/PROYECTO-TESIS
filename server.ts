@@ -13,6 +13,10 @@ const __dirname = path.dirname(__filename);
 const RESULTADOS_DIR = path.resolve(__dirname, process.env.RESULTADOS_DIR || 'tesis-rf/resultados');
 const PREDECIR_PY = path.resolve(__dirname, 'tesis-rf/src/predecir.py');
 const MODELO = path.join(RESULTADOS_DIR, 'modelo_rf.joblib');
+// Una fila por alumno: en el despliegue se lee de un archivo secreto, no del repositorio público.
+const PREDICCIONES_2026 = process.env.PREDICCIONES_2026 && fs.existsSync(process.env.PREDICCIONES_2026)
+  ? process.env.PREDICCIONES_2026
+  : path.join(RESULTADOS_DIR, 'predicciones_2026.csv');
 const PYTHON = process.env.PYTHON || 'python3';
 
 /** CSV simple con comillas (lo que escribe pandas.to_csv). */
@@ -142,7 +146,7 @@ async function startServer() {
         disponible: hayInforme,
         generado_en: hayInforme ? fs.statSync(rutaInforme).mtime.toISOString() : null,
         informe: hayInforme ? JSON.parse(fs.readFileSync(rutaInforme, 'utf-8')) : null,
-        predicciones_2026: leerCsv(path.join(RESULTADOS_DIR, 'predicciones_2026.csv')).map(r => ({
+        predicciones_2026: leerCsv(PREDICCIONES_2026).map(r => ({
           ...r,
           probabilidad_riesgo: num(r.probabilidad_riesgo),
           alerta_riesgo: num(r.alerta_riesgo),

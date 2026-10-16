@@ -161,6 +161,14 @@ y `src/utils/validacion.ts`, y volver a correr `scripts/verificar_validacion.ts`
 - Umbral elegido con predicciones fuera de muestra: mayor precisión con sensibilidad ≥ 0.90
 - PR-AUC por año en la validación cruzada, brecha entrenamiento-validación y curvas de validación de `max_depth` y `min_samples_leaf`
 
+## Despliegue (Render)
+
+`Dockerfile` (Python 3.13 + Node 22) y `render.yaml` (Blueprint). El repositorio es **público**:
+`modelo_rf.joblib` se versiona (no contiene datos de alumnos), pero `predicciones_2026.csv`
+(una fila por alumno) no; en Render se sube como Secret File y el servidor lo lee desde la
+variable `PREDICCIONES_2026`. Las versiones de `tesis-rf/requirements.txt` son las del
+entrenamiento: si se cambian, hay que reentrenar.
+
 ## Dashboard
 
 El dashboard no calcula ni ajusta ninguna métrica del modelo. Valida el Excel en el navegador

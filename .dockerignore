@@ -1,0 +1,7 @@
+node_modules
+dist
+.git
+data
+tesis-rf/data
+tesis-rf/salida
+**/__pycache__
