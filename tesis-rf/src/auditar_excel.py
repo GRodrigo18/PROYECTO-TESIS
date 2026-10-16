@@ -132,7 +132,10 @@ def main(ruta: Path, salida: Path):
                 v, err = estandarizar(r[col], lit)
                 fila[f"{cur}_{etapa}"] = v
                 if err:
-                    motivos.append(f"{cur}_{etapa}:{err}")
+                    # B3 y B4 no entran al modelo (salvo B4 como nota de cierre si falta Final):
+                    # su problema se reporta para revisar, pero no excluye el registro.
+                    if not (etapa == "B3" or (etapa == "B4" and "FINAL" in d)):
+                        motivos.append(f"{cur}_{etapa}:{err}")
                     revisar.append({"fila_excel": i + 2, "ID_Estudiante": id_est, "anio": anio, "sede": sede_raw,
                                     "columna": col, "valor_original": r[col], "problema": err})
         if motivos:

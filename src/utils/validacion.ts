@@ -167,7 +167,9 @@ export function auditarFilas(
         const [v, err] = estandarizar(r[col], lit);
         if (v !== null) notas[`${cur}_${etapa}`] = v;
         if (err) {
-          motivos.push(`${cur}_${etapa}:${err}`);
+          // B3 y B4 no entran al modelo (salvo B4 como nota de cierre si falta Final):
+          // su problema se reporta para revisar, pero no excluye el registro.
+          if (!(etapa === 'B3' || (etapa === 'B4' && 'FINAL' in d))) motivos.push(`${cur}_${etapa}:${err}`);
           revisar.push({
             fila_excel: filaExcel, ID_Estudiante: idEst, anio, sede: sedeRaw, columna: col,
             valor_original: esNulo(r[col]) ? '' : String(r[col]), problema: err,

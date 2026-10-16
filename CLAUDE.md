@@ -48,17 +48,40 @@ de `/api/dataset` (ya corregidos en este repo; se dejan como referencia de lo qu
 - **Escala MINEDU:** AD 18–20, A 14–17, B 11–13, C 0–10. Un número 0–3 en un año registrado en escala literal se marca como sospechoso; no es una nota válida.
 - Si el Excel solo trae una nota por curso (sin bimestres), **detenerse y avisar**. No entrenar con fuga.
 
-## Formato de los datos disponibles hoy
+## Datos en bruto (exportados del sistema académico, uno por año)
 
-El Excel actual **no trae notas por bimestre**: 2020-2025 tienen un promedio anual por curso y
-2026 el promedio de B1-B2. Con ese formato el pipeline se detiene (código de salida 2) y explica
-qué exportar. No se entrena hasta tener B1, B2 y Final por curso para 2020-2025.
+El primer Excel consolidado traía un promedio anual por curso (sin bimestres); con ese formato el
+pipeline se detiene (código de salida 2). Los datos en bruto sí traen bimestres:
+
+```
+<AÑO>/Consolidado_Notas_Curso/<SEDE>/<g> SECUNDARIA_<n>.xlsx      # 1, 2, 3, 4, PF por curso
+<AÑO>/Consolidado_Datos_Estudiante/<SEDE>/[SECUNDARIA/]<g> ....xlsx  # DNI, sexo, sede, grado, sección
+```
+
+`src/consolidar_notas.py` los une (por sede, grado y nombre "Apellido1 I. Nombre") y produce el
+Excel del pipeline. Solo secundaria (1º-5º). Decisiones:
+
+- Áreas del modelo: COMUNICACIÓN, INGLÉS, MATEMÁTICA, CIENCIA Y TECNOLOGÍA, CIENCIAS SOCIALES
+  (las 5 presentes en todos los grados y sedes). Final = columna PF.
+- No limpia notas: copia los valores; la validación es de `auditar_excel.py` / el pipeline.
+- El DNI no sale del script: `ID_Estudiante` = HMAC-SHA256 con `tesis-rf/data/clave_id.txt`
+  (fuera de git). Usar **la misma clave para todos los años** o los ID no coincidirán.
+- Estudiante con notas pero sin ficha: se conserva sin sexo, con ID `SINDNI-…`, y queda en el log.
+- Un área duplicada con valores distintos no se resuelve a mano: queda vacía y se excluye.
+
+Hallazgos 2020: 726 estudiantes; falta la ficha de Avantgard Lima 3º (14 sin sexo); Industrial
+solo tiene 1º-2º y Avantgard Lima no tiene 5º; MATEMÁTICA aparece duplicada (idéntica) en
+Industrial 2º; prevalencia de riesgo 3.6% (año de pandemia).
+
+Regla de exclusión por etapa: B1, B2 y Final inválidos excluyen el registro; B3 y B4 solo se
+reportan en `valores_a_revisar` (no entran al modelo), salvo B4 cuando hace de nota de cierre.
 
 ## Estructura
 
 ```
 tesis-rf/
   data/                    # Excel original (no modificarlo; ignorado por git)
+  src/consolidar_notas.py  # Excel en bruto por año (notas + fichas) -> Excel del pipeline
   src/auditar_excel.py     # diagnóstico + validación + log de exclusiones (cualquier formato)
   src/pipeline_rf_tesis.py # validación, RF, hiperparámetros, métricas, predicción 2026, modelo_rf.joblib
   src/predecir.py          # predicción con modelo_rf.joblib (lo usa el simulador vía server.ts)
@@ -76,6 +99,7 @@ scripts/verificar_validacion.ts  # compara validacion.ts con auditar_excel.py so
 # Python
 cd tesis-rf
 pip install -r requirements.txt
+python src/consolidar_notas.py --anio-dir data/bruto/2020 data/bruto/2021 ... --salida data/notas.xlsx
 python src/auditar_excel.py --datos data/<archivo>.xlsx --salida salida/
 python src/pipeline_rf_tesis.py --datos data/<archivo>.xlsx --salida resultados/ --n-iter 40
 python src/pipeline_rf_tesis.py --demo --n-iter 8   # prueba rápida con datos sintéticos (no copiar a resultados/)
