@@ -98,7 +98,7 @@ def leer_datos_estudiante(anio_dir: Path, log: list):
     """{(sede, grado): [fichas]} solo de secundaria."""
     fichas = defaultdict(list)
     for f in sorted((anio_dir / "Consolidado_Datos_Estudiante").rglob("*.xlsx")):
-        if "PRIMARIA" in norm(f.as_posix()):
+        if "PRIMARIA" in norm(f.name):  # por nombre de archivo: en 2026 SECUNDARIA/ está dentro de PRIMARIA/
             continue
         ws = openpyxl.load_workbook(f, read_only=True, data_only=True).active
         filas = list(ws.iter_rows(values_only=True))
@@ -155,11 +155,14 @@ def leer_notas(f: Path, anio_dir: Path, log: list):
         for area, cols in pos.items():
             bloques = [tuple(r[i:i + 5]) for i in cols]
             if len(set(bloques)) > 1:
-                log.append({"tipo": "area_duplicada_distinta", "archivo": rel, "detalle": f"{r[1]} / {area}: {bloques}"})
+                log.append({"tipo": "area_duplicada_distinta_se_usa_la_ultima", "archivo": rel,
+                            "detalle": f"{r[1]} / {area}: {bloques}"})
             elif len(cols) > 1:
                 log.append({"tipo": "area_duplicada_identica", "archivo": rel, "detalle": f"{r[1]} / {area}"})
-            # Si hay dos bloques distintos no se elige uno: se dejan vacíos y el auditor excluye el registro.
-            bloque = bloques[0] if len(set(bloques)) == 1 else (None,) * 5
+            # El área cierra su grupo: va después de sus sub-cursos (Aritmética … HABILIDAD LÓGICA,
+            # MATEMÁTICA). Si un sub-curso viene rotulado igual que el área (La Ascensión 3º 2025),
+            # la columna del área es la última.
+            bloque = bloques[-1]
             for etapa, v in zip(ETAPAS, bloque):
                 notas[f"{AREAS[area]}_{etapa}"] = v
         alumnos.append({"nombre": r[1], **notas})

@@ -67,7 +67,9 @@ Excel del pipeline. Solo secundaria (1º-5º). Decisiones:
 - El DNI no sale del script: `ID_Estudiante` = HMAC-SHA256 con `tesis-rf/data/clave_id.txt`
   (fuera de git). Usar **la misma clave para todos los años** o los ID no coincidirán.
 - Estudiante con notas pero sin ficha: se conserva sin sexo, con ID `SINDNI-…`, y queda en el log.
-- Un área duplicada con valores distintos no se resuelve a mano: queda vacía y se excluye.
+- Un área duplicada con valores distintos: se usa la **última** columna, porque el área cierra su
+  grupo después de sus sub-cursos (en La Ascensión 3º 2025 un sub-curso viene rotulado "MATEMÁTICA").
+  Queda en el log (`area_duplicada_distinta_se_usa_la_ultima`).
 
 - Una sección copiada en la carpeta de otra sede (mismos alumnos y notas) se conserva solo donde
   los alumnos tienen ficha; la copia se descarta y queda en el log (`seccion_copiada_descartada`).
