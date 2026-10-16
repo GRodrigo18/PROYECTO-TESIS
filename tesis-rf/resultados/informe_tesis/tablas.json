@@ -637,6 +637,8 @@
    "Ciencia y Tecnologia",
    "Ciencias Sociales"
   ],
+  "cursos_extra": [],
+  "extra_en_x": true,
   "n_arboles_modelo_final": 100,
   "validacion_exclusion": {
    "total_bruto": 10140,
@@ -765,6 +767,11 @@
   "umbral": {
    "valor": 0.0938,
    "criterio": "max_precision_con_recall>=0.9"
+  },
+  "umbral_despliegue": {
+   "valor": 0.1063,
+   "criterio": "max_precision_con_recall>=0.9",
+   "datos": "2020-2025, validación cruzada dejando un año fuera"
   },
   "test": {
    "umbral_0.5": {
@@ -1632,5 +1639,103 @@
   "Con alerta": 324.0,
   "% con alerta": 16.8,
   "Probabilidad media": 0.057
- }
+ },
+ "umbrales": [
+  {
+   "Umbral": 0.03,
+   "Rol": "",
+   "Alertas": 581,
+   "Detectados": 187,
+   "No detectados": 0,
+   "Falsas alarmas": 394,
+   "Sensibilidad": 1.0,
+   "Precisión": 0.3219,
+   "F1-Score": 0.487
+  },
+  {
+   "Umbral": 0.0938,
+   "Rol": "Oficial (elegido con 2020-2024)",
+   "Alertas": 462,
+   "Detectados": 186,
+   "No detectados": 1,
+   "Falsas alarmas": 276,
+   "Sensibilidad": 0.9947,
+   "Precisión": 0.4026,
+   "F1-Score": 0.5732
+  },
+  {
+   "Umbral": 0.2,
+   "Rol": "",
+   "Alertas": 311,
+   "Detectados": 175,
+   "No detectados": 12,
+   "Falsas alarmas": 136,
+   "Sensibilidad": 0.9358,
+   "Precisión": 0.5627,
+   "F1-Score": 0.7028
+  },
+  {
+   "Umbral": 0.3,
+   "Rol": "",
+   "Alertas": 256,
+   "Detectados": 164,
+   "No detectados": 23,
+   "Falsas alarmas": 92,
+   "Sensibilidad": 0.877,
+   "Precisión": 0.6406,
+   "F1-Score": 0.7404
+  },
+  {
+   "Umbral": 0.5,
+   "Rol": "Referencia (convencional)",
+   "Alertas": 167,
+   "Detectados": 134,
+   "No detectados": 53,
+   "Falsas alarmas": 33,
+   "Sensibilidad": 0.7166,
+   "Precisión": 0.8024,
+   "F1-Score": 0.7571
+  },
+  {
+   "Umbral": 0.7,
+   "Rol": "",
+   "Alertas": 86,
+   "Detectados": 74,
+   "No detectados": 113,
+   "Falsas alarmas": 12,
+   "Sensibilidad": 0.3957,
+   "Precisión": 0.8605,
+   "F1-Score": 0.5421
+  }
+ ],
+ "origen_umbral": {
+  "umbral": 0.0938,
+  "meta_sensibilidad": 0.9,
+  "Alertas": 1156,
+  "Detectados": 403,
+  "No detectados": 45,
+  "Falsas alarmas": 753,
+  "Sensibilidad": 0.8996,
+  "Precisión": 0.3486,
+  "F1-Score": 0.5025,
+  "n": 5845,
+  "por_anio": {
+   "2020": 0.8846,
+   "2021": 0.969,
+   "2022": 0.9815,
+   "2023": 0.7883,
+   "2024": 0.9216
+  }
+ },
+ "alertas_2026_por_umbral": {
+  "oficial": {
+   "umbral": 0.0938,
+   "alertas": 324
+  },
+  "despliegue": {
+   "umbral": 0.1063,
+   "alertas": 279
+  }
+ },
+ "n_estudiantes_2026": 1932
 }

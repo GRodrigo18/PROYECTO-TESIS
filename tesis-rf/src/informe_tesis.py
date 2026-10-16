@@ -319,6 +319,8 @@ def main():
                                                       for k, g in oof.groupby("anio")}}
     grid = np.linspace(0.01, 0.95, 95)
     curva = pd.DataFrame([{"u": u, **con_umbral(pr["y_real"], pr["proba_rf"], u)} for u in grid])
+    # Sin alertas la precisión no está definida: no se dibuja como 0
+    curva.loc[curva["Alertas"] == 0, "Precisión"] = np.nan
     fig, ax = plt.subplots(figsize=(6.4, 4.2))
     estilo(ax, f"Sensibilidad y precisión según el umbral – prueba {inf['particion']['prueba']}")
     ax.plot(curva["u"], curva["Sensibilidad"], color=AZUL, linewidth=2, label="Sensibilidad")
