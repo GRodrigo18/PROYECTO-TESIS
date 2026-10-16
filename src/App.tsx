@@ -134,6 +134,7 @@ export default function App() {
               <span>PR-AUC <strong className="text-blue-600 font-mono">{num(opt.pr_auc)}</strong></span>
               <span>Sensibilidad <strong className="text-emerald-600 font-mono">{pct(opt.sensibilidad_recall)}</strong></span>
               <span>Precisión <strong className="font-mono">{pct(opt.precision)}</strong></span>
+              <span>F1 <strong className="font-mono">{num(opt.f1)}</strong></span>
             </div>
           )}
         </div>
