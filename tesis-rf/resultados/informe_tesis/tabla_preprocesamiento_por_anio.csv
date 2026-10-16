@@ -1,0 +1,9 @@
+﻿Año,Fichas de estudiantes (secundaria),Registros de notas en bruto,C1 Sección copiada de otra sede,C2 Sin ficha de datos,Registros consolidados,C3 Fichas sin notas (no ingresan),V1 Año académico inválido,V2 Sede inválida o vacía,V3 Sin identificador,V4 Registro duplicado,V5 Nota final (PF) vacía o inválida en algún área,V6 Nota de B1 o B2 vacía o inválida en algún área,Registros finales (válidos),Rol en el modelo
+2020,712,726,0,-14,712,0,0,0,0,0,-3,-57,652,Entrenamiento
+2021,878,878,0,0,878,0,0,0,0,0,-6,-16,856,Entrenamiento
+2022,1401,1310,-216,0,1094,307,0,0,0,0,-7,-52,1035,Entrenamiento
+2023,1709,1709,0,0,1709,0,0,0,0,0,-33,-74,1602,Entrenamiento
+2024,1862,1862,0,0,1862,0,0,0,0,0,-12,-150,1700,Entrenamiento
+2025,1945,1919,0,0,1919,26,0,0,0,0,-29,-112,1778,Prueba
+2026,1966,1966,0,0,1966,0,0,0,0,0,0,-34,1932,Predicción
+Total,10473,10370,-216,-14,10140,333,0,0,0,0,-90,-495,9555,

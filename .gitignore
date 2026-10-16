@@ -6,3 +6,17 @@ coverage/
 *.log
 .env*
 !.env.example
+
+# Datos de estudiantes: no se suben al repositorio
+/data/
+tesis-rf/data/*
+!tesis-rf/data/.gitkeep
+tesis-rf/salida/
+datos_demo.xlsx
+__pycache__/
+# Salidas fila por fila del pipeline (códigos de alumnos): no se suben.
+tesis-rf/resultados/registros_excluidos.csv
+# Una fila por alumno 2026: el repositorio es público; en Render va como Secret File.
+tesis-rf/resultados/predicciones_2026.csv
+
+tesis-rf/resultados/predicciones_prueba.csv

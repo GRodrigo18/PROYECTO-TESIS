@@ -1,255 +1,196 @@
-export type RiskStatus = 'Normal' | 'En Riesgo';
+// ---------------------------------------------------------------------------
+// Validación del Excel (mismas reglas que tesis-rf/src/auditar_excel.py)
+// ---------------------------------------------------------------------------
+export type ProjectPhase =
+  | 'paso1_carga'
+  | 'paso2_validacion'
+  | 'paso3_modelo'
+  | 'paso4_predicciones'
+  | 'paso5_simulador';
 
-export type ScaleStandard = 0 | 1 | 2 | 3; // 0=C, 1=B, 2=A, 3=AD
+export type Sexo = 'Femenino' | 'Masculino' | 'No registrado';
+export type FormatoDataset = 'por_bimestre' | 'una_nota_por_curso';
 
-export type ProjectPhase = 
-  | 'paso1_carga'        // PASO 1: Ingesta de datos (Excel / CSV con las columnas oficiales incluyendo Sede)
-  | 'paso2_estandarizar' // PASO 2: Estandarización de Notas (0-3) y Regla de Riesgo
-  | 'paso3_entrenamiento'// PASO 3: Entrenamiento Random Forest (100 árboles) y Gráficos de Validación
-  | 'paso4_resultados'   // PASO 4: Predicciones 2026 y Exportación
-  | 'paso5_simulador';   // PASO 5: Simulador interactivo en tiempo real
+/** Nota estandarizada: 0=C, 1=B, 2=A, 3=AD */
+export type NotaEstandar = 0 | 1 | 2 | 3;
 
-export interface StudentCourseGrade {
-  original: string | number;
-  estandarizada: ScaleStandard;
-}
-
-export interface StudentRecord {
-  id: string;
+export interface RegistroValido {
+  fila_excel: number;
   ID_Estudiante: string;
-  nombre: string;
-  anio_academico: number; // Año_Academico (2020..2026)
-  sexo: 'Femenino' | 'Masculino' | 'Otro'; // Sexo
-  sede: string;          // Sede (5 sedes: Sede Central, Sede Norte, Sede Sur, Sede Este, Sede Callao)
-  grado: string;         // Grado académico (ej. 1° a 5° de Secundaria)
-  
-  // Cursos estandarizados
-  cursos: Record<string, StudentCourseGrade>;
-  cantidad_cursos: number;
-  
-  // Regla metodológica del Colab: Si min(cursos) == 0 (C), Estado_Riesgo = 1
-  nota_minima: ScaleStandard;
-  promedio_estandarizado: number; // 0.00 a 3.00
-  
-  estado_riesgo_real: 0 | 1; // 0 = Normal, 1 = En Riesgo
-  estado_riesgo_real_texto: RiskStatus;
-  
-  // Predicción del Ensamble Random Forest (100 Árboles)
-  riesgo_predicho_ia?: 0 | 1;
-  riesgo_predicho_texto?: 'Normal' | 'Alerta de Riesgo';
-  probabilidad_riesgo?: number; // 0.00 a 1.00
-  votos_arboles?: {
-    riesgo: number;
-    normal: number;
-    total_arboles: number; // 100
-  };
-  cursos_en_riesgo?: string[]; // Cursos con nota 0 (C)
-  tipo_conjunto: 'entrenamiento' | 'prueba_2026';
-}
-
-export interface PurgedRecord {
-  id: string;
-  ID_Estudiante: string;
-  nombre: string;
-  sede: string;
-  grado: string;
-  anio_academico: number;
-  sexo: 'Femenino' | 'Masculino' | 'Otro';
-  motivo: string;
-  cursosAfectados: Array<{
-    curso: string;
-    valorOriginal: string | number;
-    tipoFalla: 'guion' | 'vacio' | 'invalido';
-  }>;
-}
-
-export interface DepuracionStats {
-  total_leidos: number;
-  total_validos: number;
-  total_eliminados: number;
-  porcentaje_eliminados: number;
-  desglose_motivos: {
-    con_guion: number;
-    vacios: number;
-    otros_invalidos: number;
-  };
-  eliminados_por_grado: Record<string, number>;
-  eliminados_por_sede: Record<string, number>;
-}
-
-export interface ColabEvaluationMetrics {
-  sensibilidad: number; // Recall
-  precision: number;
-  f1_score: number;
-  accuracy: number;
-  total_train: number; // Registros 2020-2025
-  total_test: number;  // Registros 2026
-  n_estimators: number; // 100 árboles
-  class_weight: string; // 'balanced'
-  random_state: number; // 42
-  matriz_confusion: {
-    tn: number; // Normal predicho Normal
-    fp: number; // Normal predicho En Riesgo
-    fn: number; // En Riesgo predicho Normal
-    tp: number; // En Riesgo predicho En Riesgo
-  };
-  distribucion_test: {
-    normal: number;
-    en_riesgo: number;
-  };
-  distribucion_train: {
-    normal: number;
-    en_riesgo: number;
-  };
-  // Análisis y validación por las 5 Sedes
-  sedes_analisis: Array<{
-    sede: string;
-    total: number;
-    en_riesgo: number;
-    normal: number;
-    tasa_riesgo: number; // Porcentaje 0 a 100
-  }>;
-  // Análisis y validación por Grados Académicos
-  grados_analisis: Array<{
-    grado: string;
-    total: number;
-    en_riesgo: number;
-    normal: number;
-    tasa_riesgo: number; // Porcentaje 0 a 100
-  }>;
-  // Auditoría de depuración de datos
-  depuracion_estadisticas: DepuracionStats;
-  // Detonantes por curso (frecuencia de C / 0 y feature importance)
-  cursos_falla: Array<{
-    curso: string;
-    total_reprobados: number; // Veces con nota 0 (C)
-    porcentaje: number;
-    importancia_rf: number; // 0.00 a 1.00
-  }>;
-  // Distribución global de notas en escala 0 a 3
-  distribucion_notas: Array<{
-    escala: string;
-    etiqueta: string;
-    cantidad: number;
-    porcentaje: number;
-  }>;
-  // Tendencia anual histórica (2020 a 2026)
-  tendencia_anual: Array<{
-    anio: number;
-    total: number;
-    en_riesgo: number;
-    normal: number;
-    tasa_riesgo: number;
-    fase: 'Entrenamiento' | 'Prueba';
-  }>;
-  fecha_ejecucion: string;
-}
-
-export interface FilterState {
-  searchQuery: string;
-  year: number | 'Todos' | 'Entrenamiento (2020-2025)' | 'Prueba (2026)';
-  sede: string; // 'Todas' o una de las 5 sedes
-  grado: string; // 'Todos' o grado específico (ej. '1° de Secundaria')
-  risk: any;
-  gender: any;
-  country?: string;
-  minCourses?: number;
-  maxCourses?: number;
-}
-
-// -------------------------------------------------------------
-// Legacy types compatibility
-// -------------------------------------------------------------
-export type RiskLevel = 'Alto' | 'Medio' | 'Bajo';
-export type Gender = 'Femenino' | 'Masculino' | 'Otro';
-export type DatasetCohortType = 'entrenamiento' | 'prueba_2026';
-
-export interface StudentPrediction {
-  id: string;
   anio: number;
-  codigo: string;
-  nombre: string;
-  nombre_codigo: string;
-  sexo: Gender;
-  sede?: string;
-  pais?: string;
-  grado?: string;
-  cursos: number;
-  bimestre_1: number;
-  bimestre_2: number;
-  bimestre_3?: number;
-  bimestre_4?: number;
-  promedio_b1_b2: number;
-  promedio_final?: number;
-  promedio_previo?: number;
-  asistencia_pct: number;
-  horas_estudio_semanal: number;
-  cursos_detalle?: string[];
-  riesgo_academico: RiskLevel;
-  probabilidad_riesgo: number;
-  tipo_conjunto: DatasetCohortType;
-  votos_arboles?: {
-    alto: number;
-    medio: number;
-    bajo: number;
-    total_arboles: number;
-  };
-  factores_clave?: string[];
-  fecha_evaluacion?: string;
+  sede: string;
+  sexo: Sexo;
+  grado: string | null;
+  /** clave `${curso}_${etapa}` (etapa = UNICA, B1..B4 o FINAL) */
+  notas: Record<string, NotaEstandar>;
 }
 
-export interface ModelHyperparameters {
-  n_estimators: number;
-  max_depth: number;
-  criterion: 'gini' | 'entropy';
-  min_samples_split: number;
+export interface RegistroExcluido {
+  fila_excel: number;
+  ID_Estudiante: string;
+  anio: number | null;
+  sede: string;
+  motivos: string;
 }
 
-export interface ConfusionMatrix {
-  matrix: {
-    alto_alto: number;
-    alto_medio: number;
-    alto_bajo: number;
-    medio_alto: number;
-    medio_medio: number;
-    medio_bajo: number;
-    bajo_alto: number;
-    bajo_medio: number;
-    bajo_bajo: number;
-  };
+export interface ValorARevisar {
+  fila_excel: number;
+  ID_Estudiante: string;
+  anio: number | null;
+  sede: string;
+  columna: string;
+  valor_original: string;
+  problema: string;
 }
 
-export interface ModelMetrics {
-  nombreModelo: string;
-  version: string;
-  hyperparameters: ModelHyperparameters;
-  accuracy: number;
+export interface PerfilDataset {
+  archivo: string;
+  hoja_usada: string;
+  hojas: Record<string, number>;
+  formato_detectado: FormatoDataset;
+  advertencia_fuga: string | null;
+  columnas_identificadas: Record<'id' | 'sexo' | 'sede' | 'anio' | 'grado', string | null>;
+  cursos: Record<string, string[]>;
+  total_bruto: number;
+  total_validos: number;
+  total_excluidos: number;
+  porcentaje_excluidos: number;
+  motivos_exclusion: Record<string, number>;
+  excluidos_por_sede: Record<string, number>;
+  excluidos_por_anio: Record<string, number>;
+  validos_por_anio: Record<string, number>;
+  validos_por_sede: Record<string, number>;
+  sexo_no_registrado: number;
+  escala_literal_por_anio: Record<string, boolean>;
+}
+
+export interface ResultadoAuditoria {
+  perfil: PerfilDataset;
+  validos: RegistroValido[];
+  excluidos: RegistroExcluido[];
+  revisar: ValorARevisar[];
+}
+
+// ---------------------------------------------------------------------------
+// Salidas del pipeline Python (tesis-rf/resultados/)
+// ---------------------------------------------------------------------------
+export interface MetricasBinarias {
+  umbral: number;
+  matriz_confusion: { tn: number; fp: number; fn: number; tp: number };
+  sensibilidad_recall: number;
+  especificidad: number;
   precision: number;
-  recall: number;
-  f1_score: number;
-  roc_auc: number;
-  total_entrenamiento: number;
-  total_prueba: number;
-  confusionMatrix: ConfusionMatrix;
-  distribucion_entrenamiento: {
-    alto: number;
-    medio: number;
-    bajo: number;
-  };
-  distribucion_prueba_2026: {
-    alto: number;
-    medio: number;
-    bajo: number;
-  };
-  fecha_ultimo_entrenamiento: string;
-  n_estimators?: number;
-  max_depth?: number;
-  total_evaluados?: number;
+  valor_predictivo_negativo: number;
+  f1: number;
+  f2: number;
+  accuracy: number;
+  balanced_accuracy: number;
+  mcc: number;
+  kappa_cohen: number;
+  roc_auc: number | null;
+  pr_auc: number | null;
+  brier: number;
+  log_loss: number;
+  prevalencia: number;
 }
 
-export interface FeatureImportance {
-  feature: string;
-  label: string;
-  importance: number;
-  impacto: 'Alto' | 'Medio' | 'Bajo';
+export interface McNemar {
+  a_acierta_b_falla: number;
+  b_acierta_a_falla: number;
+  chi2: number;
+  p_valor: number;
+}
+
+export interface PuntoCurva {
+  valor: string;
+  pr_auc_validacion: number;
+  pr_auc_entrenamiento: number;
+  n_combinaciones: number;
+}
+
+export interface InformeMetricas {
+  cursos?: string[];
+  n_arboles_modelo_final?: number;
+  validacion_exclusion: {
+    total_bruto: number;
+    total_validos: number;
+    total_excluidos: number;
+    porcentaje_excluidos: number;
+    motivos: Record<string, number>;
+    por_sede: Record<string, number>;
+    por_anio: Record<string, number>;
+  };
+  particion: {
+    entrenamiento: string;
+    prueba: number;
+    prediccion: number;
+    n_train: number;
+    n_test: number;
+    n_2026: number;
+    prevalencia_train: number;
+    prevalencia_test: number;
+  };
+  mejores_hiperparametros: Record<string, string | number | null>;
+  cv_leave_one_year_out_pr_auc: number;
+  cv_pr_auc_por_anio_validacion?: Record<string, number>;
+  brecha_entrenamiento_validacion_pr_auc?: number;
+  curvas_validacion_marginales?: Record<string, PuntoCurva[]>;
+  umbral: { valor: number; criterio: string };
+  test: {
+    'umbral_0.5': MetricasBinarias;
+    umbral_optimo: MetricasBinarias;
+    ic95_bootstrap_umbral_optimo: Record<string, [number, number]>;
+  };
+  lineas_base: Record<string, MetricasBinarias>;
+  pruebas_mcnemar: Record<string, McNemar>;
+  por_subgrupo: Record<string, Record<string, {
+    sensibilidad_recall: number; precision: number; f1: number; pr_auc: number; prevalencia: number;
+  }>>;
+  calibracion: { prob_media_predicha: number[]; fraccion_real: number[] };
+  importancia_gini_top10: Record<string, number>;
+  importancia_permutacion_top10: Array<{ variable: string; importancia_media: number; desv_std: number }>;
+}
+
+export interface Prediccion2026 {
+  ID_Estudiante: string;
+  sede: string;
+  sexo: string;
+  grado: string;
+  probabilidad_riesgo: number;
+  alerta_riesgo: number;
+  votos_arboles_riesgo: number;
+  total_arboles: number;
+}
+
+export interface ImportanciaPermutacion {
+  variable: string;
+  importancia_media: number;
+  desv_std: number;
+}
+
+export interface ResultadosPipeline {
+  disponible: boolean;
+  generado_en: string | null;
+  informe: InformeMetricas | null;
+  predicciones_2026: Prediccion2026[];
+  importancia_permutacion: ImportanciaPermutacion[];
+  modelo_disponible: boolean;
+}
+
+export interface InfoModelo {
+  cursos: string[];
+  sedes: string[];
+  umbral: number;
+  criterio_umbral: string | null;
+  total_arboles: number;
+}
+
+export interface ResultadoPrediccion {
+  ok: boolean;
+  errores?: string[];
+  probabilidad_riesgo?: number;
+  alerta_riesgo?: number;
+  votos_arboles_riesgo?: number;
+  total_arboles?: number;
+  variables?: Record<string, number | string | null>;
 }

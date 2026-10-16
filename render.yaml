@@ -1,0 +1,16 @@
+# Blueprint de Render: https://render.com/docs/blueprint-spec
+services:
+  - type: web
+    name: riesgo-academico-rf
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      # Las predicciones 2026 (una fila por alumno) no están en el repositorio público:
+      # se suben en Render > Environment > Secret Files como "predicciones_2026.csv".
+      - key: PREDICCIONES_2026
+        value: /etc/secrets/predicciones_2026.csv

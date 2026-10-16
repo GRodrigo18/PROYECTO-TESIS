@@ -1,0 +1,13 @@
+﻿Parámetro,Descripción,Valor
+n_estimators,Número de árboles,100
+min_samples_split,Mínimo de registros para dividir un nodo,20
+min_samples_leaf,Mínimo de registros por hoja,2
+max_samples,Proporción de la muestra bootstrap,0.7
+max_features,Variables evaluadas por división,sqrt
+max_depth,Profundidad máxima,4
+criterion,Criterio de impureza,gini
+class_weight,Ponderación de clases,sin límite / ninguno
+random_state,Semilla (reproducibilidad),42
+umbral de decisión,max_precision_con_recall>=0.9,0.0938
+búsqueda,"RandomizedSearchCV, 40 combinaciones, CV dejando un año fuera (2020-2024), métrica PR-AUC",PR-AUC CV = 0.68
+partición,Entrenamiento 2020-2024 / prueba 2025 / predicción 2026,5845 / 1778 / 1932
