@@ -127,6 +127,8 @@ pip install -r requirements.txt
 python src/consolidar_notas.py --anio-dir data/bruto/2020 data/bruto/2021 ... --salida data/notas.xlsx
 python src/auditar_excel.py --datos data/<archivo>.xlsx --salida salida/
 python src/pipeline_rf_tesis.py --datos data/<archivo>.xlsx --salida resultados/ --n-iter 40
+python src/informe_tesis.py --flujo data/notas_2020_2026_flujo.json   # tablas y figuras del cap. III
+node informe/generar_informe_docx.cjs resultados/informe_tesis Informe.docx   # informe Word (npm i docx)
 python src/pipeline_rf_tesis.py --demo --n-iter 8   # prueba rápida con datos sintéticos (no copiar a resultados/)
 
 # Web

@@ -1,0 +1,1556 @@
+{
+ "preprocesamiento": [
+  {
+   "Año": 2020,
+   "Fichas de estudiantes (secundaria)": 712,
+   "Registros de notas en bruto": 726,
+   "C1 Sección copiada de otra sede": 0,
+   "C2 Sin ficha de datos": -14,
+   "Registros consolidados": 712,
+   "C3 Fichas sin notas (no ingresan)": 0,
+   "V1 Año académico inválido": 0,
+   "V2 Sede inválida o vacía": 0,
+   "V3 Sin identificador": 0,
+   "V4 Registro duplicado": 0,
+   "V5 Nota final (PF) vacía o inválida en algún área": -3,
+   "V6 Nota de B1 o B2 vacía o inválida en algún área": -57,
+   "Registros finales (válidos)": 652,
+   "Rol en el modelo": "Entrenamiento"
+  },
+  {
+   "Año": 2021,
+   "Fichas de estudiantes (secundaria)": 878,
+   "Registros de notas en bruto": 878,
+   "C1 Sección copiada de otra sede": 0,
+   "C2 Sin ficha de datos": 0,
+   "Registros consolidados": 878,
+   "C3 Fichas sin notas (no ingresan)": 0,
+   "V1 Año académico inválido": 0,
+   "V2 Sede inválida o vacía": 0,
+   "V3 Sin identificador": 0,
+   "V4 Registro duplicado": 0,
+   "V5 Nota final (PF) vacía o inválida en algún área": -6,
+   "V6 Nota de B1 o B2 vacía o inválida en algún área": -16,
+   "Registros finales (válidos)": 856,
+   "Rol en el modelo": "Entrenamiento"
+  },
+  {
+   "Año": 2022,
+   "Fichas de estudiantes (secundaria)": 1401,
+   "Registros de notas en bruto": 1310,
+   "C1 Sección copiada de otra sede": -216,
+   "C2 Sin ficha de datos": 0,
+   "Registros consolidados": 1094,
+   "C3 Fichas sin notas (no ingresan)": 307,
+   "V1 Año académico inválido": 0,
+   "V2 Sede inválida o vacía": 0,
+   "V3 Sin identificador": 0,
+   "V4 Registro duplicado": 0,
+   "V5 Nota final (PF) vacía o inválida en algún área": -7,
+   "V6 Nota de B1 o B2 vacía o inválida en algún área": -52,
+   "Registros finales (válidos)": 1035,
+   "Rol en el modelo": "Entrenamiento"
+  },
+  {
+   "Año": 2023,
+   "Fichas de estudiantes (secundaria)": 1709,
+   "Registros de notas en bruto": 1709,
+   "C1 Sección copiada de otra sede": 0,
+   "C2 Sin ficha de datos": 0,
+   "Registros consolidados": 1709,
+   "C3 Fichas sin notas (no ingresan)": 0,
+   "V1 Año académico inválido": 0,
+   "V2 Sede inválida o vacía": 0,
+   "V3 Sin identificador": 0,
+   "V4 Registro duplicado": 0,
+   "V5 Nota final (PF) vacía o inválida en algún área": -33,
+   "V6 Nota de B1 o B2 vacía o inválida en algún área": -74,
+   "Registros finales (válidos)": 1602,
+   "Rol en el modelo": "Entrenamiento"
+  },
+  {
+   "Año": 2024,
+   "Fichas de estudiantes (secundaria)": 1862,
+   "Registros de notas en bruto": 1862,
+   "C1 Sección copiada de otra sede": 0,
+   "C2 Sin ficha de datos": 0,
+   "Registros consolidados": 1862,
+   "C3 Fichas sin notas (no ingresan)": 0,
+   "V1 Año académico inválido": 0,
+   "V2 Sede inválida o vacía": 0,
+   "V3 Sin identificador": 0,
+   "V4 Registro duplicado": 0,
+   "V5 Nota final (PF) vacía o inválida en algún área": -12,
+   "V6 Nota de B1 o B2 vacía o inválida en algún área": -150,
+   "Registros finales (válidos)": 1700,
+   "Rol en el modelo": "Entrenamiento"
+  },
+  {
+   "Año": 2025,
+   "Fichas de estudiantes (secundaria)": 1945,
+   "Registros de notas en bruto": 1919,
+   "C1 Sección copiada de otra sede": 0,
+   "C2 Sin ficha de datos": 0,
+   "Registros consolidados": 1919,
+   "C3 Fichas sin notas (no ingresan)": 26,
+   "V1 Año académico inválido": 0,
+   "V2 Sede inválida o vacía": 0,
+   "V3 Sin identificador": 0,
+   "V4 Registro duplicado": 0,
+   "V5 Nota final (PF) vacía o inválida en algún área": -29,
+   "V6 Nota de B1 o B2 vacía o inválida en algún área": -112,
+   "Registros finales (válidos)": 1778,
+   "Rol en el modelo": "Prueba"
+  },
+  {
+   "Año": 2026,
+   "Fichas de estudiantes (secundaria)": 1966,
+   "Registros de notas en bruto": 1966,
+   "C1 Sección copiada de otra sede": 0,
+   "C2 Sin ficha de datos": 0,
+   "Registros consolidados": 1966,
+   "C3 Fichas sin notas (no ingresan)": 0,
+   "V1 Año académico inválido": 0,
+   "V2 Sede inválida o vacía": 0,
+   "V3 Sin identificador": 0,
+   "V4 Registro duplicado": 0,
+   "V5 Nota final (PF) vacía o inválida en algún área": 0,
+   "V6 Nota de B1 o B2 vacía o inválida en algún área": -34,
+   "Registros finales (válidos)": 1932,
+   "Rol en el modelo": "Predicción"
+  },
+  {
+   "Año": "Total",
+   "Fichas de estudiantes (secundaria)": 10473,
+   "Registros de notas en bruto": 10370,
+   "C1 Sección copiada de otra sede": -216,
+   "C2 Sin ficha de datos": -14,
+   "Registros consolidados": 10140,
+   "C3 Fichas sin notas (no ingresan)": 333,
+   "V1 Año académico inválido": 0,
+   "V2 Sede inválida o vacía": 0,
+   "V3 Sin identificador": 0,
+   "V4 Registro duplicado": 0,
+   "V5 Nota final (PF) vacía o inválida en algún área": -90,
+   "V6 Nota de B1 o B2 vacía o inválida en algún área": -495,
+   "Registros finales (válidos)": 9555,
+   "Rol en el modelo": ""
+  }
+ ],
+ "reglas": [
+  {
+   "Regla": "C1",
+   "Fase": "Consolidación",
+   "Criterio de exclusión": "Sección de notas copiada de otra sede",
+   "Cómo se aplica": "Mismos alumnos y mismas notas que una sección de otra sede; se conserva solo donde los alumnos tienen ficha.",
+   "Registros": 216
+  },
+  {
+   "Regla": "C2",
+   "Fase": "Consolidación",
+   "Criterio de exclusión": "Alumno con notas sin ficha de datos del estudiante",
+   "Cómo se aplica": "Sin ficha no hay DNI (ID estable), sexo ni sección: el registro se excluye.",
+   "Registros": 14
+  },
+  {
+   "Regla": "C3",
+   "Fase": "Consolidación",
+   "Criterio de exclusión": "Ficha de estudiante sin notas en el sistema",
+   "Cómo se aplica": "No existe registro académico que consolidar; no entra al conjunto.",
+   "Registros": 333
+  },
+  {
+   "Regla": "V1",
+   "Fase": "Validación",
+   "Criterio de exclusión": "Año académico inválido",
+   "Cómo se aplica": "Año vacío o fuera de 2020-2026.",
+   "Registros": 0
+  },
+  {
+   "Regla": "V2",
+   "Fase": "Validación",
+   "Criterio de exclusión": "Sede inválida o vacía",
+   "Cómo se aplica": "La sede no es una de las cinco sedes del grupo educativo.",
+   "Registros": 0
+  },
+  {
+   "Regla": "V3",
+   "Fase": "Validación",
+   "Criterio de exclusión": "Sin identificador",
+   "Cómo se aplica": "ID_Estudiante vacío.",
+   "Registros": 0
+  },
+  {
+   "Regla": "V4",
+   "Fase": "Validación",
+   "Criterio de exclusión": "Registro duplicado",
+   "Cómo se aplica": "Mismo ID_Estudiante y año más de una vez.",
+   "Registros": 0
+  },
+  {
+   "Regla": "V5",
+   "Fase": "Validación",
+   "Criterio de exclusión": "Nota final (PF) vacía o inválida en algún área",
+   "Cómo se aplica": "Sin nota de cierre no se puede construir la etiqueta (riesgo = alguna área con PF en C).",
+   "Registros": 90
+  },
+  {
+   "Regla": "V6",
+   "Fase": "Validación",
+   "Criterio de exclusión": "Nota de B1 o B2 vacía o inválida en algún área",
+   "Cómo se aplica": "Sin las notas tempranas no se pueden construir las variables predictoras.",
+   "Registros": 495
+  }
+ ],
+ "tipos_problema": [
+  {
+   "Problema en la nota": "nulo",
+   "Notas afectadas": 1627
+  },
+  {
+   "Problema en la nota": "guion_o_vacio",
+   "Notas afectadas": 148
+  }
+ ],
+ "exclusiones_sede": [
+  {
+   "sede": "Avantgard Huaura",
+   "V5": 3,
+   "V6": 71
+  },
+  {
+   "sede": "Avantgard Lima",
+   "V5": 15,
+   "V6": 139
+  },
+  {
+   "sede": "Central",
+   "V5": 11,
+   "V6": 118
+  },
+  {
+   "sede": "Industrial",
+   "V5": 26,
+   "V6": 42
+  },
+  {
+   "sede": "La Ascension",
+   "V5": 35,
+   "V6": 125
+  }
+ ],
+ "configuracion": [
+  {
+   "Parámetro": "n_estimators",
+   "Descripción": "Número de árboles",
+   "Valor": 100
+  },
+  {
+   "Parámetro": "min_samples_split",
+   "Descripción": "Mínimo de registros para dividir un nodo",
+   "Valor": 20
+  },
+  {
+   "Parámetro": "min_samples_leaf",
+   "Descripción": "Mínimo de registros por hoja",
+   "Valor": 2
+  },
+  {
+   "Parámetro": "max_samples",
+   "Descripción": "Proporción de la muestra bootstrap",
+   "Valor": 0.7
+  },
+  {
+   "Parámetro": "max_features",
+   "Descripción": "Variables evaluadas por división",
+   "Valor": "sqrt"
+  },
+  {
+   "Parámetro": "max_depth",
+   "Descripción": "Profundidad máxima",
+   "Valor": 4
+  },
+  {
+   "Parámetro": "criterion",
+   "Descripción": "Criterio de impureza",
+   "Valor": "gini"
+  },
+  {
+   "Parámetro": "class_weight",
+   "Descripción": "Ponderación de clases",
+   "Valor": "sin límite / ninguno"
+  },
+  {
+   "Parámetro": "random_state",
+   "Descripción": "Semilla (reproducibilidad)",
+   "Valor": 42
+  },
+  {
+   "Parámetro": "umbral de decisión",
+   "Descripción": "max_precision_con_recall>=0.9",
+   "Valor": 0.0938
+  },
+  {
+   "Parámetro": "búsqueda",
+   "Descripción": "RandomizedSearchCV, 40 combinaciones, CV dejando un año fuera (2020-2024), métrica PR-AUC",
+   "Valor": "PR-AUC CV = 0.68"
+  },
+  {
+   "Parámetro": "partición",
+   "Descripción": "Entrenamiento 2020-2024 / prueba 2025 / predicción 2026",
+   "Valor": "5845 / 1778 / 1932"
+  }
+ ],
+ "metricas": [
+  {
+   "Métrica": "Sensibilidad",
+   "Random Forest (umbral elegido)": 0.9947,
+   "Random Forest (umbral 0.5)": 0.7166,
+   "Situación actual: regla «alguna C en B1-B2»": 1.0,
+   "Regresión logística": 0.9947,
+   "IC 95% (RF, umbral elegido)": "[0.983 – 1.000]"
+  },
+  {
+   "Métrica": "Precisión",
+   "Random Forest (umbral elegido)": 0.4026,
+   "Random Forest (umbral 0.5)": 0.8024,
+   "Situación actual: regla «alguna C en B1-B2»": 0.3945,
+   "Regresión logística": 0.4106,
+   "IC 95% (RF, umbral elegido)": "[0.353 – 0.445]"
+  },
+  {
+   "Métrica": "F1-Score",
+   "Random Forest (umbral elegido)": 0.5732,
+   "Random Forest (umbral 0.5)": 0.7571,
+   "Situación actual: regla «alguna C en B1-B2»": 0.5658,
+   "Regresión logística": 0.5813,
+   "IC 95% (RF, umbral elegido)": "[0.522 – 0.615]"
+  },
+  {
+   "Métrica": "Especificidad",
+   "Random Forest (umbral elegido)": 0.8265,
+   "Random Forest (umbral 0.5)": 0.9793,
+   "Situación actual: regla «alguna C en B1-B2»": 0.8196,
+   "Regresión logística": 0.8322,
+   "IC 95% (RF, umbral elegido)": ""
+  },
+  {
+   "Métrica": "F2",
+   "Random Forest (umbral elegido)": 0.7686,
+   "Random Forest (umbral 0.5)": 0.7322,
+   "Situación actual: regla «alguna C en B1-B2»": 0.7651,
+   "Regresión logística": 0.7744,
+   "IC 95% (RF, umbral elegido)": "[0.731 – 0.798]"
+  },
+  {
+   "Métrica": "Exactitud",
+   "Random Forest (umbral elegido)": 0.8442,
+   "Random Forest (umbral 0.5)": 0.9516,
+   "Situación actual: regla «alguna C en B1-B2»": 0.8386,
+   "Regresión logística": 0.8493,
+   "IC 95% (RF, umbral elegido)": ""
+  },
+  {
+   "Métrica": "Exactitud balanceada",
+   "Random Forest (umbral elegido)": 0.9106,
+   "Random Forest (umbral 0.5)": 0.8479,
+   "Situación actual: regla «alguna C en B1-B2»": 0.9098,
+   "Regresión logística": 0.9134,
+   "IC 95% (RF, umbral elegido)": ""
+  },
+  {
+   "Métrica": "MCC",
+   "Random Forest (umbral elegido)": 0.5744,
+   "Random Forest (umbral 0.5)": 0.7317,
+   "Situación actual: regla «alguna C en B1-B2»": 0.5686,
+   "Regresión logística": 0.5821,
+   "IC 95% (RF, umbral elegido)": "[0.535 – 0.610]"
+  },
+  {
+   "Métrica": "ROC-AUC",
+   "Random Forest (umbral elegido)": 0.9773,
+   "Random Forest (umbral 0.5)": 0.9773,
+   "Situación actual: regla «alguna C en B1-B2»": 0.9098,
+   "Regresión logística": 0.9722,
+   "IC 95% (RF, umbral elegido)": "[0.971 – 0.983]"
+  },
+  {
+   "Métrica": "PR-AUC",
+   "Random Forest (umbral elegido)": 0.8326,
+   "Random Forest (umbral 0.5)": 0.8326,
+   "Situación actual: regla «alguna C en B1-B2»": 0.3945,
+   "Regresión logística": 0.8156,
+   "IC 95% (RF, umbral elegido)": "[0.778 – 0.877]"
+  }
+ ],
+ "importancia": [
+  {
+   "variable": "n_notas_C_B1B2",
+   "importancia_media": 0.0635839645,
+   "desv_std": 0.0161423208,
+   "etiqueta": "N.º de notas C en B1-B2"
+  },
+  {
+   "variable": "Matematica_B2",
+   "importancia_media": 0.0462893234,
+   "desv_std": 0.0128627373,
+   "etiqueta": "Matemática (B2)"
+  },
+  {
+   "variable": "promedio_B1B2",
+   "importancia_media": 0.0174435992,
+   "desv_std": 0.010463765,
+   "etiqueta": "Promedio B1-B2"
+  },
+  {
+   "variable": "minimo_B1B2",
+   "importancia_media": 0.0128772693,
+   "desv_std": 0.008114313,
+   "etiqueta": "Nota mínima B1-B2"
+  },
+  {
+   "variable": "Ciencia y Tecnologia_B1",
+   "importancia_media": 0.0063130592,
+   "desv_std": 0.0034507662,
+   "etiqueta": "Ciencia y Tecnología (B1)"
+  },
+  {
+   "variable": "n_notas_B_B1B2",
+   "importancia_media": 0.0062323488,
+   "desv_std": 0.0044147828,
+   "etiqueta": "N.º de notas B en B1-B2"
+  },
+  {
+   "variable": "Matematica_B1",
+   "importancia_media": 0.0053887618,
+   "desv_std": 0.0044588202,
+   "etiqueta": "Matemática (B1)"
+  },
+  {
+   "variable": "Ciencia y Tecnologia_B2",
+   "importancia_media": 0.00323621,
+   "desv_std": 0.0053502615,
+   "etiqueta": "Ciencia y Tecnología (B2)"
+  },
+  {
+   "variable": "grado",
+   "importancia_media": 0.0023920683,
+   "desv_std": 0.0011965632,
+   "etiqueta": "Grado"
+  },
+  {
+   "variable": "Comunicacion_B2",
+   "importancia_media": 0.0013313808,
+   "desv_std": 0.0026333995,
+   "etiqueta": "Comunicación (B2)"
+  },
+  {
+   "variable": "Ingles_B2",
+   "importancia_media": 0.0012058052,
+   "desv_std": 0.0008474455,
+   "etiqueta": "Inglés (B2)"
+  },
+  {
+   "variable": "Comunicacion_B1",
+   "importancia_media": 0.0006543536,
+   "desv_std": 0.000489621,
+   "etiqueta": "Comunicación (B1)"
+  }
+ ],
+ "hipotesis": [
+  {
+   "hipotesis": "H1",
+   "umbral_rf": "umbral elegido (0.094)",
+   "metrica": "sensibilidad",
+   "n_aulas": 34,
+   "media_rf": 0.9853,
+   "media_situacion_actual": 1.0,
+   "diferencia_media": -0.0147,
+   "shapiro_w": 0.1647,
+   "shapiro_p": 0.0,
+   "normalidad": "no normal",
+   "prueba": "Wilcoxon de rangos con signo (unilateral)",
+   "estadistico": 0.0,
+   "p_valor": 0.8413,
+   "decision": "No se rechaza H0"
+  },
+  {
+   "hipotesis": "H2",
+   "umbral_rf": "umbral elegido (0.094)",
+   "metrica": "precision",
+   "n_aulas": 62,
+   "media_rf": 0.2445,
+   "media_situacion_actual": 0.2422,
+   "diferencia_media": 0.0023,
+   "shapiro_w": 0.2634,
+   "shapiro_p": 0.0,
+   "normalidad": "no normal",
+   "prueba": "Wilcoxon de rangos con signo (unilateral)",
+   "estadistico": 7.0,
+   "p_valor": 0.2326,
+   "decision": "No se rechaza H0"
+  },
+  {
+   "hipotesis": "H3",
+   "umbral_rf": "umbral elegido (0.094)",
+   "metrica": "f1",
+   "n_aulas": 62,
+   "media_rf": 0.3214,
+   "media_situacion_actual": 0.322,
+   "diferencia_media": -0.0006,
+   "shapiro_w": 0.2497,
+   "shapiro_p": 0.0,
+   "normalidad": "no normal",
+   "prueba": "Wilcoxon de rangos con signo (unilateral)",
+   "estadistico": 6.0,
+   "p_valor": 0.3575,
+   "decision": "No se rechaza H0"
+  },
+  {
+   "hipotesis": "H1",
+   "umbral_rf": "umbral 0.5",
+   "metrica": "sensibilidad",
+   "n_aulas": 34,
+   "media_rf": 0.6096,
+   "media_situacion_actual": 1.0,
+   "diferencia_media": -0.3904,
+   "shapiro_w": 0.8408,
+   "shapiro_p": 0.0002,
+   "normalidad": "no normal",
+   "prueba": "Wilcoxon de rangos con signo (unilateral)",
+   "estadistico": 0.0,
+   "p_valor": 1.0,
+   "decision": "No se rechaza H0"
+  },
+  {
+   "hipotesis": "H2",
+   "umbral_rf": "umbral 0.5",
+   "metrica": "precision",
+   "n_aulas": 29,
+   "media_rf": 0.7794,
+   "media_situacion_actual": 0.4286,
+   "diferencia_media": 0.3508,
+   "shapiro_w": 0.9653,
+   "shapiro_p": 0.441,
+   "normalidad": "normal",
+   "prueba": "t de Student para muestras relacionadas (unilateral)",
+   "estadistico": 7.5055,
+   "p_valor": 0.0,
+   "decision": "Se rechaza H0: se acepta H1"
+  },
+  {
+   "hipotesis": "H3",
+   "umbral_rf": "umbral 0.5",
+   "metrica": "f1",
+   "n_aulas": 35,
+   "media_rf": 0.5931,
+   "media_situacion_actual": 0.5704,
+   "diferencia_media": 0.0227,
+   "shapiro_w": 0.9539,
+   "shapiro_p": 0.149,
+   "normalidad": "normal",
+   "prueba": "t de Student para muestras relacionadas (unilateral)",
+   "estadistico": 0.3689,
+   "p_valor": 0.3572,
+   "decision": "No se rechaza H0"
+  }
+ ],
+ "informe": {
+  "cursos": [
+   "Comunicacion",
+   "Ingles",
+   "Matematica",
+   "Ciencia y Tecnologia",
+   "Ciencias Sociales"
+  ],
+  "n_arboles_modelo_final": 100,
+  "validacion_exclusion": {
+   "total_bruto": 10140,
+   "total_validos": 9555,
+   "total_excluidos": 585,
+   "porcentaje_excluidos": 5.77,
+   "motivos": {
+    "nulo": 1627,
+    "guion_o_vacio": 148
+   },
+   "por_sede": {
+    "La Ascension": 160,
+    "Avantgard Lima": 154,
+    "Central": 129,
+    "Avantgard Huaura": 74,
+    "Industrial": 68
+   },
+   "por_anio": {
+    "2020": 60,
+    "2021": 22,
+    "2022": 59,
+    "2023": 107,
+    "2024": 162,
+    "2025": 141,
+    "2026": 34
+   },
+   "escala_literal_por_anio": {
+    "2020": false,
+    "2021": false,
+    "2022": true,
+    "2023": true,
+    "2024": true,
+    "2025": true,
+    "2026": true
+   }
+  },
+  "particion": {
+   "entrenamiento": "2020-2024",
+   "prueba": 2025,
+   "prediccion": 2026,
+   "n_train": 5845,
+   "n_test": 1778,
+   "n_2026": 1932,
+   "prevalencia_train": 0.0766,
+   "prevalencia_test": 0.1052
+  },
+  "mejores_hiperparametros": {
+   "rf__n_estimators": 100,
+   "rf__min_samples_split": 20,
+   "rf__min_samples_leaf": 2,
+   "rf__max_samples": 0.7,
+   "rf__max_features": "sqrt",
+   "rf__max_depth": 4,
+   "rf__criterion": "gini",
+   "rf__class_weight": null
+  },
+  "cv_leave_one_year_out_pr_auc": 0.68,
+  "cv_pr_auc_por_anio_validacion": {
+   "2020": 0.7113,
+   "2021": 0.8827,
+   "2022": 0.5946,
+   "2023": 0.5799,
+   "2024": 0.6314
+  },
+  "brecha_entrenamiento_validacion_pr_auc": 0.0446,
+  "curvas_validacion_marginales": {
+   "max_depth": [
+    {
+     "valor": "4",
+     "pr_auc_validacion": 0.6688,
+     "pr_auc_entrenamiento": 0.7253,
+     "n_combinaciones": 8
+    },
+    {
+     "valor": "6",
+     "pr_auc_validacion": 0.6606,
+     "pr_auc_entrenamiento": 0.7889,
+     "n_combinaciones": 5
+    },
+    {
+     "valor": "8",
+     "pr_auc_validacion": 0.6456,
+     "pr_auc_entrenamiento": 0.8233,
+     "n_combinaciones": 12
+    },
+    {
+     "valor": "12",
+     "pr_auc_validacion": 0.6295,
+     "pr_auc_entrenamiento": 0.8885,
+     "n_combinaciones": 6
+    },
+    {
+     "valor": "None",
+     "pr_auc_validacion": 0.6367,
+     "pr_auc_entrenamiento": 0.8584,
+     "n_combinaciones": 9
+    }
+   ],
+   "min_samples_leaf": [
+    {
+     "valor": "1",
+     "pr_auc_validacion": 0.6383,
+     "pr_auc_entrenamiento": 0.8597,
+     "n_combinaciones": 8
+    },
+    {
+     "valor": "2",
+     "pr_auc_validacion": 0.6433,
+     "pr_auc_entrenamiento": 0.8302,
+     "n_combinaciones": 11
+    },
+    {
+     "valor": "5",
+     "pr_auc_validacion": 0.638,
+     "pr_auc_entrenamiento": 0.8281,
+     "n_combinaciones": 5
+    },
+    {
+     "valor": "10",
+     "pr_auc_validacion": 0.6585,
+     "pr_auc_entrenamiento": 0.7833,
+     "n_combinaciones": 16
+    }
+   ]
+  },
+  "umbral": {
+   "valor": 0.0938,
+   "criterio": "max_precision_con_recall>=0.9"
+  },
+  "test": {
+   "umbral_0.5": {
+    "umbral": 0.5,
+    "matriz_confusion": {
+     "tn": 1558,
+     "fp": 33,
+     "fn": 53,
+     "tp": 134
+    },
+    "sensibilidad_recall": 0.7165775401069518,
+    "especificidad": 0.9792583280955374,
+    "precision": 0.8023952095808383,
+    "valor_predictivo_negativo": 0.9671011793916822,
+    "f1": 0.7570621468926554,
+    "f2": 0.73224043715847,
+    "accuracy": 0.9516310461192351,
+    "balanced_accuracy": 0.8479179341012446,
+    "mcc": 0.73173983621187,
+    "kappa_cohen": 0.7302991071586054,
+    "roc_auc": 0.9772702064083733,
+    "pr_auc": 0.8325669215842446,
+    "brier": 0.03763509262546076,
+    "log_loss": 0.1304020305653251,
+    "prevalencia": 0.10517435320584927
+   },
+   "umbral_optimo": {
+    "umbral": 0.094,
+    "matriz_confusion": {
+     "tn": 1315,
+     "fp": 276,
+     "fn": 1,
+     "tp": 186
+    },
+    "sensibilidad_recall": 0.9946524064171123,
+    "especificidad": 0.8265241986172219,
+    "precision": 0.4025974025974026,
+    "valor_predictivo_negativo": 0.9992401215805471,
+    "f1": 0.5731895223420647,
+    "f2": 0.768595041322314,
+    "accuracy": 0.844206974128234,
+    "balanced_accuracy": 0.910588302517167,
+    "mcc": 0.5744384857231024,
+    "kappa_cohen": 0.4980237154150198,
+    "roc_auc": 0.9772702064083733,
+    "pr_auc": 0.8325669215842446,
+    "brier": 0.03763509262546076,
+    "log_loss": 0.1304020305653251,
+    "prevalencia": 0.10517435320584927
+   },
+   "ic95_bootstrap_umbral_optimo": {
+    "sensibilidad_recall": [
+     0.9827,
+     1.0
+    ],
+    "precision": [
+     0.3533,
+     0.4447
+    ],
+    "f1": [
+     0.522,
+     0.6149
+    ],
+    "f2": [
+     0.7308,
+     0.7979
+    ],
+    "roc_auc": [
+     0.9709,
+     0.983
+    ],
+    "pr_auc": [
+     0.778,
+     0.8773
+    ],
+    "mcc": [
+     0.5349,
+     0.6095
+    ]
+   }
+  },
+  "lineas_base": {
+   "regla_alguna_C_en_B1B2": {
+    "umbral": 0.5,
+    "matriz_confusion": {
+     "tn": 1304,
+     "fp": 287,
+     "fn": 0,
+     "tp": 187
+    },
+    "sensibilidad_recall": 1.0,
+    "especificidad": 0.819610307982401,
+    "precision": 0.39451476793248946,
+    "valor_predictivo_negativo": 1.0,
+    "f1": 0.5658093797276853,
+    "f2": 0.765139116202946,
+    "accuracy": 0.8385826771653543,
+    "balanced_accuracy": 0.9098051539912004,
+    "mcc": 0.5686372925237608,
+    "kappa_cohen": 0.48868216060009106,
+    "roc_auc": 0.9098051539912004,
+    "pr_auc": 0.39451476793248946,
+    "brier": 0.16141732283464566,
+    "log_loss": 2.2300635664388295,
+    "prevalencia": 0.10517435320584927
+   },
+   "dummy_estratificado": {
+    "umbral": 0.5,
+    "matriz_confusion": {
+     "tn": 1455,
+     "fp": 136,
+     "fn": 176,
+     "tp": 11
+    },
+    "sensibilidad_recall": 0.058823529411764705,
+    "especificidad": 0.9145191703331238,
+    "precision": 0.07482993197278912,
+    "valor_predictivo_negativo": 0.8920907418761496,
+    "f1": 0.0658682634730539,
+    "f2": 0.061452513966480445,
+    "accuracy": 0.8245219347581553,
+    "balanced_accuracy": 0.48667134987244426,
+    "mcc": -0.029695210547251584,
+    "kappa_cohen": -0.029435452443428378,
+    "roc_auc": 0.48667134987244426,
+    "pr_auc": 0.10338938725096337,
+    "brier": 0.17547806524184478,
+    "log_loss": 2.4243198875599976,
+    "prevalencia": 0.10517435320584927
+   },
+   "regresion_logistica": {
+    "umbral": 0.5,
+    "matriz_confusion": {
+     "tn": 1324,
+     "fp": 267,
+     "fn": 1,
+     "tp": 186
+    },
+    "sensibilidad_recall": 0.9946524064171123,
+    "especificidad": 0.8321810182275299,
+    "precision": 0.4105960264900662,
+    "valor_predictivo_negativo": 0.999245283018868,
+    "f1": 0.58125,
+    "f2": 0.7743547044129891,
+    "accuracy": 0.8492688413948256,
+    "balanced_accuracy": 0.9134167123223211,
+    "mcc": 0.5821258399196146,
+    "kappa_cohen": 0.5079969189404624,
+    "roc_auc": 0.9722116719380741,
+    "pr_auc": 0.8156210902567853,
+    "brier": 0.11000422909299526,
+    "log_loss": 0.365435427481774,
+    "prevalencia": 0.10517435320584927
+   }
+  },
+  "pruebas_mcnemar": {
+   "RF_vs_regla_B1B2": {
+    "a_acierta_b_falla": 11,
+    "b_acierta_a_falla": 1,
+    "chi2": 6.75,
+    "p_valor": 0.0094
+   },
+   "RF_vs_logistica": {
+    "a_acierta_b_falla": 27,
+    "b_acierta_a_falla": 36,
+    "chi2": 1.0159,
+    "p_valor": 0.3135
+   }
+  },
+  "por_subgrupo": {
+   "sede": {
+    "Avantgard Huaura": {
+     "sensibilidad_recall": 1.0,
+     "precision": 0.2727,
+     "f1": 0.4286,
+     "pr_auc": 0.7069,
+     "prevalencia": 0.0778
+    },
+    "Avantgard Lima": {
+     "sensibilidad_recall": 0.8333,
+     "precision": 0.1515,
+     "f1": 0.2564,
+     "pr_auc": 0.447,
+     "prevalencia": 0.0153
+    },
+    "Central": {
+     "sensibilidad_recall": 1.0,
+     "precision": 0.1429,
+     "f1": 0.25,
+     "pr_auc": 0.8687,
+     "prevalencia": 0.0156
+    },
+    "Industrial": {
+     "sensibilidad_recall": 1.0,
+     "precision": 0.25,
+     "f1": 0.4,
+     "pr_auc": 0.7542,
+     "prevalencia": 0.0129
+    },
+    "La Ascensión": {
+     "sensibilidad_recall": 1.0,
+     "precision": 0.5102,
+     "f1": 0.6757,
+     "pr_auc": 0.8714,
+     "prevalencia": 0.3546
+    }
+   },
+   "sexo": {
+    "Femenino": {
+     "sensibilidad_recall": 1.0,
+     "precision": 0.4,
+     "f1": 0.5714,
+     "pr_auc": 0.8294,
+     "prevalencia": 0.095
+    },
+    "Masculino": {
+     "sensibilidad_recall": 0.9897,
+     "precision": 0.4051,
+     "f1": 0.5749,
+     "pr_auc": 0.8362,
+     "prevalencia": 0.117
+    }
+   },
+   "grado": {
+    "1": {
+     "sensibilidad_recall": 0.9706,
+     "precision": 0.3548,
+     "f1": 0.5197,
+     "pr_auc": 0.8761,
+     "prevalencia": 0.085
+    },
+    "2": {
+     "sensibilidad_recall": 1.0,
+     "precision": 0.3415,
+     "f1": 0.5091,
+     "pr_auc": 0.6563,
+     "prevalencia": 0.0767
+    },
+    "3": {
+     "sensibilidad_recall": 1.0,
+     "precision": 0.4,
+     "f1": 0.5714,
+     "pr_auc": 0.8357,
+     "prevalencia": 0.0898
+    },
+    "4": {
+     "sensibilidad_recall": 1.0,
+     "precision": 0.5135,
+     "f1": 0.6786,
+     "pr_auc": 0.9143,
+     "prevalencia": 0.1553
+    },
+    "5": {
+     "sensibilidad_recall": 1.0,
+     "precision": 0.3762,
+     "f1": 0.5468,
+     "pr_auc": 0.861,
+     "prevalencia": 0.1218
+    }
+   }
+  },
+  "curva_roc": {
+   "fpr": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0006,
+    0.0013,
+    0.0013,
+    0.0025,
+    0.0038,
+    0.0044,
+    0.005,
+    0.0069,
+    0.0075,
+    0.0075,
+    0.0082,
+    0.0088,
+    0.0094,
+    0.0107,
+    0.0132,
+    0.0138,
+    0.0145,
+    0.0163,
+    0.017,
+    0.0189,
+    0.0201,
+    0.0201,
+    0.0207,
+    0.0233,
+    0.0245,
+    0.0258,
+    0.0289,
+    0.0295,
+    0.0302,
+    0.0308,
+    0.0314,
+    0.0327,
+    0.0339,
+    0.0352,
+    0.0377,
+    0.0383,
+    0.0402,
+    0.0421,
+    0.0465,
+    0.0471,
+    0.049,
+    0.0497,
+    0.0509,
+    0.0534,
+    0.0559,
+    0.0597,
+    0.0629,
+    0.066,
+    0.0691,
+    0.071,
+    0.0729,
+    0.0748,
+    0.0754,
+    0.0779,
+    0.0836,
+    0.0855,
+    0.0886,
+    0.0905,
+    0.0937,
+    0.0962,
+    0.0999,
+    0.105,
+    0.11,
+    0.115,
+    0.1163,
+    0.1251,
+    0.1314,
+    0.1345,
+    0.1376,
+    0.142,
+    0.1446,
+    0.1464,
+    0.1496,
+    0.1697,
+    0.1735,
+    0.1747,
+    0.1842,
+    0.1967,
+    0.2005,
+    0.2024,
+    0.2068,
+    0.2124,
+    0.2162,
+    0.2238,
+    0.2263,
+    0.2294,
+    0.2332,
+    0.2376,
+    0.2414,
+    0.2483,
+    0.2514,
+    0.2552,
+    0.264,
+    0.2659,
+    0.2696,
+    0.2759,
+    0.2778,
+    0.286,
+    0.2898,
+    0.2923,
+    0.2948,
+    0.3061,
+    0.3174,
+    0.3237,
+    0.3356,
+    0.3419,
+    0.3451,
+    0.3514,
+    0.369,
+    0.3708,
+    0.3834,
+    0.3865,
+    0.3953,
+    0.4016,
+    0.4092,
+    0.4155,
+    0.4343,
+    0.4375,
+    0.4481,
+    0.4513,
+    0.4576,
+    0.4758,
+    0.4796,
+    0.4859,
+    0.4991,
+    0.5091,
+    0.5129,
+    0.5179,
+    0.5248,
+    0.5273,
+    0.5418,
+    0.5481,
+    0.5506,
+    0.5663,
+    0.5877,
+    0.5946,
+    0.6003,
+    0.6084,
+    0.6122,
+    0.6141,
+    0.6266,
+    0.6317,
+    0.6405,
+    0.6442,
+    0.6493,
+    0.6549,
+    0.6625,
+    0.67,
+    0.6744,
+    0.6788,
+    0.6826,
+    0.6857,
+    0.6908,
+    0.6933,
+    0.7014,
+    0.704,
+    0.7077,
+    0.7102,
+    0.7159,
+    0.7241,
+    0.7291,
+    0.7417,
+    0.7473,
+    0.7536,
+    0.7561,
+    0.7618,
+    0.7643,
+    0.7681,
+    0.7725,
+    0.7788,
+    0.7819,
+    0.7888,
+    0.7913,
+    0.7989,
+    0.8052,
+    0.8083,
+    0.8121,
+    0.824,
+    0.8278,
+    0.8341,
+    0.8391,
+    0.8422,
+    0.8473,
+    0.8504,
+    0.8554,
+    0.8605,
+    0.8693,
+    0.8749,
+    0.8887,
+    0.9195,
+    0.9283,
+    0.9579,
+    0.9673,
+    0.9755,
+    1.0
+   ],
+   "tpr": [
+    0.0,
+    0.016,
+    0.0642,
+    0.0802,
+    0.1444,
+    0.1497,
+    0.2032,
+    0.2193,
+    0.2567,
+    0.3209,
+    0.3636,
+    0.385,
+    0.3904,
+    0.3957,
+    0.4278,
+    0.4385,
+    0.5829,
+    0.6096,
+    0.6364,
+    0.6417,
+    0.6471,
+    0.6524,
+    0.6578,
+    0.6684,
+    0.6791,
+    0.6845,
+    0.7112,
+    0.7166,
+    0.7219,
+    0.7273,
+    0.738,
+    0.7433,
+    0.754,
+    0.7594,
+    0.7701,
+    0.7754,
+    0.7861,
+    0.7914,
+    0.8021,
+    0.8075,
+    0.8128,
+    0.8289,
+    0.8289,
+    0.8289,
+    0.8342,
+    0.8449,
+    0.8503,
+    0.861,
+    0.8663,
+    0.8717,
+    0.877,
+    0.877,
+    0.877,
+    0.893,
+    0.9037,
+    0.9091,
+    0.9144,
+    0.9198,
+    0.9251,
+    0.9358,
+    0.9358,
+    0.9358,
+    0.9412,
+    0.9412,
+    0.9465,
+    0.9519,
+    0.9519,
+    0.9519,
+    0.9572,
+    0.9626,
+    0.9679,
+    0.9733,
+    0.9733,
+    0.9786,
+    0.9786,
+    0.984,
+    0.984,
+    0.9893,
+    0.9893,
+    0.9947,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "calibracion": {
+   "prob_media_predicha": [
+    0.0048,
+    0.006,
+    0.0087,
+    0.0127,
+    0.0184,
+    0.0229,
+    0.0283,
+    0.0921,
+    0.2844,
+    0.686
+   ],
+   "fraccion_real": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0457,
+    0.2303,
+    0.7753
+   ]
+  },
+  "importancia_gini_top10": {
+   "num__n_notas_C_B1B2": 0.2821,
+   "num__promedio_B1B2": 0.1865,
+   "num__Matematica_B2": 0.1543,
+   "num__minimo_B1B2": 0.112,
+   "num__Matematica_B1": 0.0479,
+   "num__Ciencia y Tecnologia_B1": 0.041,
+   "num__Ciencia y Tecnologia_B2": 0.0302,
+   "num__Ciencias Sociales_B2": 0.023,
+   "num__Matematica_tendencia": 0.0195,
+   "num__n_notas_B_B1B2": 0.0189
+  },
+  "importancia_permutacion_top10": [
+   {
+    "variable": "n_notas_C_B1B2",
+    "importancia_media": 0.0636,
+    "desv_std": 0.0161
+   },
+   {
+    "variable": "Matematica_B2",
+    "importancia_media": 0.0463,
+    "desv_std": 0.0129
+   },
+   {
+    "variable": "promedio_B1B2",
+    "importancia_media": 0.0174,
+    "desv_std": 0.0105
+   },
+   {
+    "variable": "minimo_B1B2",
+    "importancia_media": 0.0129,
+    "desv_std": 0.0081
+   },
+   {
+    "variable": "Ciencia y Tecnologia_B1",
+    "importancia_media": 0.0063,
+    "desv_std": 0.0035
+   },
+   {
+    "variable": "n_notas_B_B1B2",
+    "importancia_media": 0.0062,
+    "desv_std": 0.0044
+   },
+   {
+    "variable": "Matematica_B1",
+    "importancia_media": 0.0054,
+    "desv_std": 0.0045
+   },
+   {
+    "variable": "Ciencia y Tecnologia_B2",
+    "importancia_media": 0.0032,
+    "desv_std": 0.0054
+   },
+   {
+    "variable": "grado",
+    "importancia_media": 0.0024,
+    "desv_std": 0.0012
+   },
+   {
+    "variable": "Comunicacion_B2",
+    "importancia_media": 0.0013,
+    "desv_std": 0.0026
+   }
+  ]
+ },
+ "n_aulas_prueba": 70,
+ "perfil": {
+  "archivo": "tesis-rf/data/notas_2020_2026.xlsx",
+  "hoja_usada": "Sheet1",
+  "hojas": {
+   "Sheet1": 10140
+  },
+  "formato_detectado": "por_bimestre",
+  "advertencia_fuga": null,
+  "columnas_identificadas": {
+   "id": "ID_Estudiante",
+   "sexo": "Sexo",
+   "sede": "Sede",
+   "anio": "Año_Academico",
+   "grado": "Grado"
+  },
+  "cursos": {
+   "Comunicacion": [
+    "B1",
+    "B2",
+    "B3",
+    "B4",
+    "FINAL"
+   ],
+   "Ingles": [
+    "B1",
+    "B2",
+    "B3",
+    "B4",
+    "FINAL"
+   ],
+   "Matematica": [
+    "B1",
+    "B2",
+    "B3",
+    "B4",
+    "FINAL"
+   ],
+   "Ciencia y Tecnologia": [
+    "B1",
+    "B2",
+    "B3",
+    "B4",
+    "FINAL"
+   ],
+   "Ciencias Sociales": [
+    "B1",
+    "B2",
+    "B3",
+    "B4",
+    "FINAL"
+   ]
+  },
+  "total_bruto": 10140,
+  "total_validos": 9555,
+  "total_excluidos": 585,
+  "porcentaje_excluidos": 5.77,
+  "motivos_exclusion": {
+   "nulo": 1627,
+   "guion_o_vacio": 148
+  },
+  "excluidos_por_sede": {
+   "La Ascension": 160,
+   "Avantgard Lima": 154,
+   "Central": 129,
+   "Avantgard Huaura": 74,
+   "Industrial": 68
+  },
+  "excluidos_por_anio": {
+   "2020": 60,
+   "2021": 22,
+   "2022": 59,
+   "2023": 107,
+   "2024": 162,
+   "2025": 141,
+   "2026": 34
+  },
+  "validos_por_anio": {
+   "2020": 652,
+   "2021": 856,
+   "2022": 1035,
+   "2023": 1602,
+   "2024": 1700,
+   "2025": 1778,
+   "2026": 1932
+  },
+  "validos_por_sede": {
+   "Central": 2359,
+   "La Ascensión": 2355,
+   "Avantgard Lima": 1938,
+   "Industrial": 1500,
+   "Avantgard Huaura": 1403
+  },
+  "sexo_no_registrado": 6,
+  "escala_literal_por_anio": {
+   "2020": false,
+   "2021": false,
+   "2022": true,
+   "2023": true,
+   "2024": true,
+   "2025": true,
+   "2026": true
+  }
+ }
+}
