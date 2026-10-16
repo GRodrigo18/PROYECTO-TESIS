@@ -51,8 +51,7 @@ def predecir(paquete: dict, registros: list[dict]) -> list[dict]:
             filas.append(fila)
             idx_validos.append(i)
     if filas:
-        X, _ = construir_variables(pd.DataFrame(filas), cursos, tuple(paquete.get("cursos_extra", [])),
-                                   paquete.get("extra_en_x", True))
+        X, _ = construir_variables(pd.DataFrame(filas), cursos)
         X = X[paquete["columnas"]]
         proba = modelo.predict_proba(X)[:, 1]
         Z = modelo.named_steps["pre"].transform(X)
