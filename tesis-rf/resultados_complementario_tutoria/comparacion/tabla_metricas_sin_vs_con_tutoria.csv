@@ -1,0 +1,8 @@
+﻿Métrica,sin_tutoria (umbral elegido),sin_tutoria (umbral 0.5),con_tutoria (umbral elegido),con_tutoria (umbral 0.5)
+Sensibilidad,1.0,0.689,1.0,0.7134
+Precisión,0.3868,0.8071,0.3841,0.8357
+F1-Score,0.5578,0.7434,0.555,0.7697
+Especificidad,0.8298,0.9823,0.8279,0.9849
+ROC-AUC,0.9772,0.9772,0.9758,0.9758
+PR-AUC,0.8291,0.8291,0.8249,0.8249
+MCC,0.5665,0.721,0.5639,0.75

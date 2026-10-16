@@ -1,0 +1,228 @@
+{
+  "n_prueba": 1692,
+  "prevalencia_prueba": 0.0969,
+  "particion": {
+    "entrenamiento": "2020-2024",
+    "prueba": 2025,
+    "prediccion": 2026,
+    "n_train": 5542,
+    "n_test": 1692,
+    "n_2026": 1845,
+    "prevalencia_train": 0.0789,
+    "prevalencia_test": 0.0969
+  },
+  "diferencia": {
+    "delta_pr_auc": -0.0041,
+    "ic95_delta_pr_auc": [
+      -0.0137,
+      0.0056
+    ],
+    "p_bootstrap_delta_pr_auc_menor_igual_0": 0.791,
+    "delta_roc_auc": -0.0014,
+    "ic95_delta_roc_auc": [
+      -0.0029,
+      0.0001
+    ]
+  },
+  "umbrales": {
+    "sin_tutoria": {
+      "valor": 0.0943,
+      "criterio": "max_precision_con_recall>=0.9"
+    },
+    "con_tutoria": {
+      "valor": 0.0817,
+      "criterio": "max_precision_con_recall>=0.9"
+    }
+  },
+  "hiperparametros": {
+    "sin_tutoria": {
+      "rf__n_estimators": 200,
+      "rf__min_samples_split": 2,
+      "rf__min_samples_leaf": 1,
+      "rf__max_samples": null,
+      "rf__max_features": "sqrt",
+      "rf__max_depth": 4,
+      "rf__criterion": "gini",
+      "rf__class_weight": null
+    },
+    "con_tutoria": {
+      "rf__n_estimators": 100,
+      "rf__min_samples_split": 20,
+      "rf__min_samples_leaf": 10,
+      "rf__max_samples": null,
+      "rf__max_features": "log2",
+      "rf__max_depth": 8,
+      "rf__criterion": "entropy",
+      "rf__class_weight": null
+    }
+  },
+  "importancia_tutoria": [
+    {
+      "variable": "Tutoria_B1",
+      "importancia_media": 0.0021568225544024,
+      "desv_std": 0.0014131456161127,
+      "posicion": 12
+    },
+    {
+      "variable": "Tutoria_B2",
+      "importancia_media": 0.0011187074492915,
+      "desv_std": 0.0012673890254813,
+      "posicion": 14
+    },
+    {
+      "variable": "Tutoria_tendencia",
+      "importancia_media": 2.9295987451422035e-05,
+      "desv_std": 0.0006018159584399,
+      "posicion": 15
+    }
+  ],
+  "metricas": [
+    {
+      "Métrica": "Sensibilidad",
+      "sin_tutoria (umbral elegido)": 1.0,
+      "sin_tutoria (umbral 0.5)": 0.689,
+      "con_tutoria (umbral elegido)": 1.0,
+      "con_tutoria (umbral 0.5)": 0.7134
+    },
+    {
+      "Métrica": "Precisión",
+      "sin_tutoria (umbral elegido)": 0.3868,
+      "sin_tutoria (umbral 0.5)": 0.8071,
+      "con_tutoria (umbral elegido)": 0.3841,
+      "con_tutoria (umbral 0.5)": 0.8357
+    },
+    {
+      "Métrica": "F1-Score",
+      "sin_tutoria (umbral elegido)": 0.5578,
+      "sin_tutoria (umbral 0.5)": 0.7434,
+      "con_tutoria (umbral elegido)": 0.555,
+      "con_tutoria (umbral 0.5)": 0.7697
+    },
+    {
+      "Métrica": "Especificidad",
+      "sin_tutoria (umbral elegido)": 0.8298,
+      "sin_tutoria (umbral 0.5)": 0.9823,
+      "con_tutoria (umbral elegido)": 0.8279,
+      "con_tutoria (umbral 0.5)": 0.9849
+    },
+    {
+      "Métrica": "ROC-AUC",
+      "sin_tutoria (umbral elegido)": 0.9772,
+      "sin_tutoria (umbral 0.5)": 0.9772,
+      "con_tutoria (umbral elegido)": 0.9758,
+      "con_tutoria (umbral 0.5)": 0.9758
+    },
+    {
+      "Métrica": "PR-AUC",
+      "sin_tutoria (umbral elegido)": 0.8291,
+      "sin_tutoria (umbral 0.5)": 0.8291,
+      "con_tutoria (umbral elegido)": 0.8249,
+      "con_tutoria (umbral 0.5)": 0.8249
+    },
+    {
+      "Métrica": "MCC",
+      "sin_tutoria (umbral elegido)": 0.5665,
+      "sin_tutoria (umbral 0.5)": 0.721,
+      "con_tutoria (umbral elegido)": 0.5639,
+      "con_tutoria (umbral 0.5)": 0.75
+    }
+  ],
+  "hipotesis": [
+    {
+      "hipotesis": "H1",
+      "umbral_rf": "umbral elegido (0.082)",
+      "metrica": "sensibilidad",
+      "n_aulas": 32,
+      "media_rf": 1.0,
+      "media_situacion_actual": 1.0,
+      "diferencia_media": 0.0,
+      "shapiro_w": null,
+      "shapiro_p": null,
+      "normalidad": "no evaluable",
+      "prueba": "no evaluable (diferencias constantes)",
+      "estadistico": null,
+      "p_valor": null,
+      "decision": "No se rechaza H0"
+    },
+    {
+      "hipotesis": "H2",
+      "umbral_rf": "umbral elegido (0.082)",
+      "metrica": "precision",
+      "n_aulas": 59,
+      "media_rf": 0.2388,
+      "media_situacion_actual": 0.2368,
+      "diferencia_media": 0.002,
+      "shapiro_w": 0.1501,
+      "shapiro_p": 0.0,
+      "normalidad": "no normal",
+      "prueba": "Wilcoxon de rangos con signo (unilateral)",
+      "estadistico": 3.0,
+      "p_valor": 0.0899,
+      "decision": "No se rechaza H0"
+    },
+    {
+      "hipotesis": "H3",
+      "umbral_rf": "umbral elegido (0.082)",
+      "metrica": "f1",
+      "n_aulas": 59,
+      "media_rf": 0.318,
+      "media_situacion_actual": 0.3161,
+      "diferencia_media": 0.0018,
+      "shapiro_w": 0.1726,
+      "shapiro_p": 0.0,
+      "normalidad": "no normal",
+      "prueba": "Wilcoxon de rangos con signo (unilateral)",
+      "estadistico": 3.0,
+      "p_valor": 0.0899,
+      "decision": "No se rechaza H0"
+    },
+    {
+      "hipotesis": "H1",
+      "umbral_rf": "umbral 0.5",
+      "metrica": "sensibilidad",
+      "n_aulas": 32,
+      "media_rf": 0.6444,
+      "media_situacion_actual": 1.0,
+      "diferencia_media": -0.3556,
+      "shapiro_w": 0.8181,
+      "shapiro_p": 0.0001,
+      "normalidad": "no normal",
+      "prueba": "Wilcoxon de rangos con signo (unilateral)",
+      "estadistico": 0.0,
+      "p_valor": 1.0,
+      "decision": "No se rechaza H0"
+    },
+    {
+      "hipotesis": "H2",
+      "umbral_rf": "umbral 0.5",
+      "metrica": "precision",
+      "n_aulas": 28,
+      "media_rf": 0.8296,
+      "media_situacion_actual": 0.4244,
+      "diferencia_media": 0.4052,
+      "shapiro_w": 0.9741,
+      "shapiro_p": 0.6936,
+      "normalidad": "normal",
+      "prueba": "t de Student para muestras relacionadas (unilateral)",
+      "estadistico": 8.2959,
+      "p_valor": 0.0,
+      "decision": "Se rechaza H0: se acepta H1"
+    },
+    {
+      "hipotesis": "H3",
+      "umbral_rf": "umbral 0.5",
+      "metrica": "f1",
+      "n_aulas": 33,
+      "media_rf": 0.6407,
+      "media_situacion_actual": 0.5652,
+      "diferencia_media": 0.0755,
+      "shapiro_w": 0.9539,
+      "shapiro_p": 0.173,
+      "normalidad": "normal",
+      "prueba": "t de Student para muestras relacionadas (unilateral)",
+      "estadistico": 1.1485,
+      "p_valor": 0.1296,
+      "decision": "No se rechaza H0"
+    }
+  ]
+}
