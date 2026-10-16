@@ -45,7 +45,7 @@ function leerCsv(ruta: string): Record<string, string>[] {
 
 function ejecutarPredecir(entrada: unknown): Promise<any> {
   return new Promise((resolve, reject) => {
-    const p = spawn(PYTHON, [PREDECIR_PY, '--modelo', MODELO]);
+    const p = spawn(PYTHON, [PREDECIR_PY, '--modelo', MODELO], { env: { ...process.env, PYTHONDONTWRITEBYTECODE: '1' } });
     let out = '';
     let err = '';
     p.stdout.on('data', d => (out += d));

@@ -22,15 +22,20 @@ export const Paso5SimuladorSection: React.FC<Props> = ({ modeloDisponible, onPre
 
   useEffect(() => {
     if (!modeloDisponible) return;
+    let cancelado = false; // una respuesta tardía no debe borrar las notas ya ingresadas
     fetch('/api/modelo')
       .then(async r => {
         const j = await r.json();
         if (!r.ok) throw new Error(j.error);
+        if (cancelado) return;
         setInfo(j);
         setSede(j.sedes[0]);
         setNotas(Object.fromEntries(j.cursos.map((c: string) => [c, { B1: '', B2: '' }])));
       })
-      .catch(e => setError(e.message));
+      .catch(e => !cancelado && setError(e.message));
+    return () => {
+      cancelado = true;
+    };
   }, [modeloDisponible]);
 
   const predecir = async () => {
