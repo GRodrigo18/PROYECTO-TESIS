@@ -52,7 +52,7 @@ ETAPAS = ["B1", "B2", "B3", "B4", "Final"]  # columnas 1, 2, 3, 4, PF del Excel
 # Sede por palabra clave: los nombres de carpeta traen variantes ("HUAHURUA", "INDUSTRIIAL", "ASECENSION")
 SEDES = [
     (r"HUA", "Avantgard Huaura"), (r"LIMA", "Avantgard Lima"), (r"CENTRAL", "Central"),
-    (r"INDUS", "Industrial"), (r"AS[CE]+N", "La Ascensión"),
+    (r"IN\w?DUS", "Industrial"), (r"AS[CE]+N", "La Ascensión"),
 ]
 
 
@@ -133,7 +133,17 @@ def leer_notas(f: Path, anio_dir: Path, log: list):
     rel = str(f.relative_to(anio_dir))
     for area in AREAS:
         if area not in pos:
-            log.append({"tipo": "area_ausente", "archivo": rel, "detalle": area})
+            # Sin la columna oficial: se aceptan variantes del mismo nombre ("Ciencias Sociales",
+            # "MATEMÁTICA-SINGAPUR"). Si hay varias, solo se usan si sus notas son idénticas (abajo).
+            base = norm(area)
+            alias = [i for i, c in enumerate(cursos)
+                     if c is not None and norm(c).rstrip(".") in {base, base + "-SINGAPUR"}]
+            if alias:
+                pos[area] = alias
+                log.append({"tipo": "area_por_nombre_alternativo", "archivo": rel,
+                            "detalle": f"{area} <- {[cursos[i] for i in alias]}"})
+            else:
+                log.append({"tipo": "area_ausente", "archivo": rel, "detalle": area})
         for i in pos[area]:
             if sub[i:i + 5] != ["1", "2", "3", "4", "PF"]:
                 raise ValueError(f"{rel}: columnas inesperadas bajo {area}: {sub[i:i + 5]}")
@@ -170,11 +180,16 @@ def seudonimo(clave: bytes, texto: str, prefijo="E") -> str:
     return prefijo + hmac.new(clave, texto.encode(), hashlib.sha256).hexdigest()[:12].upper()
 
 
-def buscar_ficha(fichas, sede, grado, nombre):
+def buscar_ficha(fichas, sede, grado, nombre, archivo_notas: str | None = None):
     k = clave_nombre_abreviado(nombre)
     cands = [d for d in fichas[(sede, grado)] if k and d["clave"] == k]
     if k and not cands:  # apellido compuesto: "De la Cruz" vs "DE"
         cands = [d for d in fichas[(sede, grado)] if d["clave"][2] == k[2] and k[0].startswith(d["clave"][0])]
+    if len(cands) > 1 and archivo_notas:
+        # Desempate (p. ej. gemelos "Flores P. Maria"): la ficha del archivo de la misma sección
+        misma = [d for d in cands if norm(Path(d["archivo"]).name) == norm(Path(archivo_notas).name)]
+        if len(misma) == 1:
+            return misma
     return cands
 
 
@@ -217,7 +232,7 @@ def consolidar_anio(anio_dir: Path, anio: int, clave: bytes, log: list) -> list[
     for arch in descartar_copias(archivos, fichas, anio_dir, log):
         rel, sede, grado = arch["rel"], arch["sede"], arch["grado"]
         for al in arch["alumnos"]:
-            cands = buscar_ficha(fichas, sede, grado, al["nombre"])
+            cands = buscar_ficha(fichas, sede, grado, al["nombre"], rel)
             ficha = cands[0] if len(cands) == 1 else None
             if len(cands) > 1:
                 log.append({"tipo": "emparejamiento_ambiguo", "archivo": rel, "detalle": f"{al['nombre']} -> {[c['nombre'] for c in cands]}"})
@@ -228,7 +243,7 @@ def consolidar_anio(anio_dir: Path, anio: int, clave: bytes, log: list) -> list[
                     log.append({"tipo": "ficha_usada_dos_veces", "archivo": rel, "detalle": al["nombre"]})
                 ficha["usada"] = True
             id_est = (seudonimo(clave, ficha["dni"]) if ficha and ficha["dni"] and ficha["dni"] != "-"
-                      else seudonimo(clave, f"{anio}|{sede}|{grado}|{norm(al['nombre'])}", "SINDNI-"))
+                      else seudonimo(clave, f"{anio}|{rel}|{norm(al['nombre'])}", "SINDNI-"))
             notas = {k2: v for k2, v in al.items() if k2 != "nombre"}
             filas.append({"ID_Estudiante": id_est, "Sexo": ficha["sexo"] if ficha else None, "Sede": sede,
                           "Grado": grado, "Seccion": ficha["seccion"] if ficha else None,

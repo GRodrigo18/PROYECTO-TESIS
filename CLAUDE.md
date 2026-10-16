@@ -80,9 +80,13 @@ Hallazgos por año (consolidado → válidos tras auditar; riesgo = algún Final
 | 2020 | 726  | 666  | 3.9%  | Falta ficha de Avantgard Lima 3º (14 sin sexo). Industrial solo 1º-2º. MATEMÁTICA duplicada idéntica en Industrial 2º. Año de pandemia. |
 | 2021 | 878  | 856  | 15.1% | Sin incidencias. Escala mixta (letras y números). |
 | 2022 | 1094 | 1035 | 5.2%  | La carpeta de notas de Industrial es copia de la de Avantgard Lima (216 alumnos): descartada; faltan las notas reales de Industrial 2022 (307 fichas sin notas). Escala mixta. |
+| 2023 | 1709 | 1602 | 8.6%  | MATEMÁTICA se llama "MATEMÁTICA-SINGAPUR" en Avantgard Huaura 1º-2º y CIENCIAS SOCIALES viene como "Ciencias Sociales" en La Ascensión 1º (mismas notas que el sub-curso). Gemelas "Flores P. Maria" en Central: se desempata por la sección. |
+| 2024 | 1862 | 1700 | 6.0%  | Sin incidencias (mismas gemelas, desempatadas por sección). |
 
-La Ascensión concentra el riesgo (6.8% / 32.4% / 12.9%). La regla "alguna C en B1-B2" detecta
-204 de 209 casos de riesgo 2020-2022 con 299 falsas alarmas: es la línea base a superar.
+Los totales consolidados de 2021, 2023 y 2024 coinciden con los del dashboard original (878, 1709,
+1862); 2020 suma 14 alumnos más (Avantgard Lima 3º sin ficha). 2,003 estudiantes aparecen en 2 a 5
+años con el mismo ID. La Ascensión concentra el riesgo todos los años. La regla "alguna C en B1-B2"
+detecta 408 de 448 casos de riesgo 2020-2024 con 821 falsas alarmas: es la línea base a superar.
 
 Regla de exclusión por etapa: B1, B2 y Final inválidos excluyen el registro; B3 y B4 solo se
 reportan en `valores_a_revisar` (no entran al modelo), salvo B4 cuando hace de nota de cierre.
