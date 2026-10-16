@@ -14,3 +14,8 @@ tesis-rf/data/*
 tesis-rf/salida/
 datos_demo.xlsx
 __pycache__/
+# Salidas fila por fila del pipeline (códigos de alumnos): no se suben.
+tesis-rf/resultados/registros_excluidos.csv
+# Pendiente de decisión del autor: contienen códigos seudónimos de alumnos 2026.
+tesis-rf/resultados/predicciones_2026.csv
+tesis-rf/resultados/modelo_rf.joblib
