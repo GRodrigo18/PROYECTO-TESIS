@@ -6,3 +6,11 @@ coverage/
 *.log
 .env*
 !.env.example
+
+# Datos de estudiantes: no se suben al repositorio
+/data/
+tesis-rf/data/*
+!tesis-rf/data/.gitkeep
+tesis-rf/salida/
+datos_demo.xlsx
+__pycache__/
