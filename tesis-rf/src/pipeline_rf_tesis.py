@@ -348,7 +348,8 @@ def ejecutar(ruta_datos: Path, salida: Path, n_iter: int = 40, anio_test: int = 
     # Curvas de validación marginales: promedio de las combinaciones probadas para cada valor
     curvas = {}
     for p in ("rf__max_depth", "rf__min_samples_leaf"):
-        g = cv_res.groupby(cv_res[f"param_{p}"].astype(str))
+        # None (p. ej. max_depth sin límite) no debe perderse como nulo al agrupar
+        g = cv_res.groupby(cv_res[f"param_{p}"].map(lambda v: "None" if v is None or v != v else str(v)))
         curvas[p.replace("rf__", "")] = [
             {"valor": k, "pr_auc_validacion": round(float(v["mean_test_pr_auc"].mean()), 4),
              "pr_auc_entrenamiento": round(float(v["mean_train_pr_auc"].mean()), 4), "n_combinaciones": int(len(v))}
