@@ -19,3 +19,5 @@ tesis-rf/resultados/registros_excluidos.csv
 # Pendiente de decisión del autor: contienen códigos seudónimos de alumnos 2026.
 tesis-rf/resultados/predicciones_2026.csv
 tesis-rf/resultados/modelo_rf.joblib
+
+tesis-rf/resultados/predicciones_prueba.csv

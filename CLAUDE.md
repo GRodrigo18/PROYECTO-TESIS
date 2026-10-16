@@ -66,7 +66,13 @@ Excel del pipeline. Solo secundaria (1º-5º). Decisiones:
 - No limpia notas: copia los valores; la validación es de `auditar_excel.py` / el pipeline.
 - El DNI no sale del script: `ID_Estudiante` = HMAC-SHA256 con `tesis-rf/data/clave_id.txt`
   (fuera de git). Usar **la misma clave para todos los años** o los ID no coincidirán.
-- Estudiante con notas pero sin ficha: se conserva sin sexo, con ID `SINDNI-…`, y queda en el log.
+- Reglas de exclusión de la consolidación (contadas por año en `<salida>_flujo.json`):
+  **C1** sección copiada de otra sede → se descarta la copia; **C2** alumno con notas sin ficha →
+  excluido (decisión del autor: sin ficha no hay ID estable ni sexo); **C3** ficha sin notas → no entra.
+- Reglas de validación (auditar_excel.py / pipeline): **V1** año inválido, **V2** sede inválida,
+  **V3** sin ID, **V4** duplicado ID+año, **V5** PF vacía o inválida en alguna área (sin etiqueta),
+  **V6** B1 o B2 vacía o inválida (sin variables). `src/informe_tesis.py` asigna a cada registro
+  excluido su primera regla en ese orden y produce las tablas y figuras del capítulo de Resultados.
 - Un área duplicada con valores distintos: se usa la **última** columna, porque el área cierra su
   grupo después de sus sub-cursos (en La Ascensión 3º 2025 un sub-curso viene rotulado "MATEMÁTICA").
   Queda en el log (`area_duplicada_distinta_se_usa_la_ultima`).
@@ -79,14 +85,16 @@ Hallazgos por año (consolidado → válidos tras auditar; riesgo = algún Final
 
 | Año  | Consolidados | Válidos | Riesgo | Notas |
 |------|-------------:|--------:|-------:|-------|
-| 2020 | 726  | 666  | 3.9%  | Falta ficha de Avantgard Lima 3º (14 sin sexo). Industrial solo 1º-2º. MATEMÁTICA duplicada idéntica en Industrial 2º. Año de pandemia. |
+| 2020 | 712  | 652  | 3.9%  | Avantgard Lima 3º no tiene fichas (14 alumnos excluidos por C2; el sistema no las conserva). Industrial solo 1º-2º. MATEMÁTICA duplicada idéntica en Industrial 2º. Año de pandemia. |
 | 2021 | 878  | 856  | 15.1% | Sin incidencias. Escala mixta (letras y números). |
-| 2022 | 1094 | 1035 | 5.2%  | La carpeta de notas de Industrial es copia de la de Avantgard Lima (216 alumnos): descartada; faltan las notas reales de Industrial 2022 (307 fichas sin notas). Escala mixta. |
+| 2022 | 1094 | 1035 | 5.2%  | Las notas de Industrial son copia exacta de las de Avantgard Lima (216 alumnos, C1); se volvieron a exportar y salió el mismo archivo: Industrial 2022 queda fuera (307 fichas sin notas, C3). Escala mixta. |
 | 2023 | 1709 | 1602 | 8.6%  | MATEMÁTICA se llama "MATEMÁTICA-SINGAPUR" en Avantgard Huaura 1º-2º y CIENCIAS SOCIALES viene como "Ciencias Sociales" en La Ascensión 1º (mismas notas que el sub-curso). Gemelas "Flores P. Maria" en Central: se desempata por la sección. |
 | 2024 | 1862 | 1700 | 6.0%  | Sin incidencias (mismas gemelas, desempatadas por sección). |
+| 2025 | 1919 | 1778 | 10.5% | Prueba. La Ascensión 3º rotula un sub-curso como "MATEMÁTICA": se usa la última columna. Falta el archivo de notas de Industrial 4º "S. PAUL JOBS" (26 fichas sin notas, C3). |
+| 2026 | 1966 | 1932 | —     | Predicción (B1-B2; PF trae el promedio parcial y no se usa). Las fichas de secundaria de Central están dentro de la carpeta PRIMARIA/. |
 
 Los totales consolidados de 2021, 2023 y 2024 coinciden con los del dashboard original (878, 1709,
-1862); 2020 suma 14 alumnos más (Avantgard Lima 3º sin ficha). 2,003 estudiantes aparecen en 2 a 5
+1862) y 2026 (1966). 2,003 estudiantes aparecen en 2 a 5
 años con el mismo ID. La Ascensión concentra el riesgo todos los años. La regla "alguna C en B1-B2"
 detecta 408 de 448 casos de riesgo 2020-2024 con 821 falsas alarmas: es la línea base a superar.
 

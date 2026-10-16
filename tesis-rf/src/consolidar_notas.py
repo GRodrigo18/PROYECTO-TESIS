@@ -17,8 +17,10 @@ Reglas:
     rangos) la hace auditar_excel.py / pipeline_rf_tesis.py, con su log de exclusiones.
   - El DNI no sale del script: ID_Estudiante = HMAC-SHA256(clave, DNI), estable entre años
     mientras se use la misma clave (tesis-rf/data/clave_id.txt, fuera de git).
-  - Un estudiante con notas pero sin ficha de datos se conserva sin sexo ni DNI, con un ID
-    derivado de año+sede+grado+nombre (prefijo SINDNI-) y se anota en el log.
+  - Reglas de exclusión de la consolidación (cada una se cuenta en <salida>_flujo.json):
+      C1 sección de notas copiada de otra sede -> se descarta la copia;
+      C2 alumno con notas pero sin ficha (o con emparejamiento ambiguo) -> excluido;
+      C3 ficha sin notas -> no hay registro académico que consolidar (se cuenta, no entra).
   - Todo emparejamiento dudoso (sin coincidencia, ambiguo, sede o grado distintos) se anota.
 
 Uso:
@@ -221,7 +223,7 @@ def descartar_copias(archivos: list[dict], fichas, anio_dir: Path, log: list) ->
     return [a for a in archivos if a["rel"] not in descartar]
 
 
-def consolidar_anio(anio_dir: Path, anio: int, clave: bytes, log: list) -> list[dict]:
+def consolidar_anio(anio_dir: Path, anio: int, clave: bytes, log: list, flujos: dict) -> list[dict]:
     fichas = leer_datos_estudiante(anio_dir, log)
     archivos = []
     for f in sorted((anio_dir / "Consolidado_Notas_Curso").rglob("*.xlsx")):
@@ -231,8 +233,13 @@ def consolidar_anio(anio_dir: Path, anio: int, clave: bytes, log: list) -> list[
             log.append({"tipo": "archivo_sin_sede_o_grado", "archivo": rel, "detalle": ""})
             continue
         archivos.append({"rel": rel, "sede": sede, "grado": grado, "alumnos": leer_notas(f, anio_dir, log)})
+    flujo = Counter()
+    flujo["fichas_secundaria"] = sum(len(v) for v in fichas.values())
+    flujo["filas_notas_en_bruto"] = sum(len(a["alumnos"]) for a in archivos)
+    validos_archivos = descartar_copias(archivos, fichas, anio_dir, log)
+    flujo["C1_seccion_copiada_de_otra_sede"] = flujo["filas_notas_en_bruto"] - sum(len(a["alumnos"]) for a in validos_archivos)
     filas = []
-    for arch in descartar_copias(archivos, fichas, anio_dir, log):
+    for arch in validos_archivos:
         rel, sede, grado = arch["rel"], arch["sede"], arch["grado"]
         for al in arch["alumnos"]:
             cands = buscar_ficha(fichas, sede, grado, al["nombre"], rel)
@@ -241,11 +248,13 @@ def consolidar_anio(anio_dir: Path, anio: int, clave: bytes, log: list) -> list[
                 log.append({"tipo": "emparejamiento_ambiguo", "archivo": rel, "detalle": f"{al['nombre']} -> {[c['nombre'] for c in cands]}"})
             elif not cands:
                 log.append({"tipo": "sin_ficha_de_datos", "archivo": rel, "detalle": al["nombre"]})
-            if ficha:
-                if ficha["usada"]:
-                    log.append({"tipo": "ficha_usada_dos_veces", "archivo": rel, "detalle": al["nombre"]})
-                ficha["usada"] = True
-            id_est = (seudonimo(clave, ficha["dni"]) if ficha and ficha["dni"] and ficha["dni"] != "-"
+            if not ficha:
+                flujo["C2_sin_ficha_de_datos"] += 1  # sin sexo ni ID estable: se excluye
+                continue
+            if ficha["usada"]:
+                log.append({"tipo": "ficha_usada_dos_veces", "archivo": rel, "detalle": al["nombre"]})
+            ficha["usada"] = True
+            id_est = (seudonimo(clave, ficha["dni"]) if ficha["dni"] and ficha["dni"] != "-"
                       else seudonimo(clave, f"{anio}|{rel}|{norm(al['nombre'])}", "SINDNI-"))
             notas = {k2: v for k2, v in al.items() if k2 != "nombre"}
             filas.append({"ID_Estudiante": id_est, "Sexo": ficha["sexo"] if ficha else None, "Sede": sede,
@@ -254,7 +263,10 @@ def consolidar_anio(anio_dir: Path, anio: int, clave: bytes, log: list) -> list[
     for lista in fichas.values():
         for d in lista:
             if not d["usada"]:
+                flujo["C3_ficha_sin_notas"] += 1
                 log.append({"tipo": "ficha_sin_notas", "archivo": d["archivo"], "detalle": d["nombre"]})
+    flujo["consolidados"] = len(filas)
+    flujos[anio] = dict(flujo)
     return filas
 
 
@@ -265,16 +277,18 @@ def main():
     ap.add_argument("--clave", type=Path, default=Path(__file__).resolve().parents[1] / "data" / "clave_id.txt")
     a = ap.parse_args()
     clave = obtener_clave(a.clave)
-    filas, log = [], []
+    filas, log, flujos = [], [], {}
     for d in a.anio_dir:
         anio = int(re.search(r"(20\d\d)", d.name).group(1))
-        filas += consolidar_anio(d, anio, clave, log)
+        filas += consolidar_anio(d, anio, clave, log, flujos)
     df = pd.DataFrame(filas)
     a.salida.parent.mkdir(parents=True, exist_ok=True)
     df.to_excel(a.salida, index=False)
     lg = pd.DataFrame(log, columns=["tipo", "archivo", "detalle"])
     ruta_log = a.salida.with_name(a.salida.stem + "_log_consolidacion.csv")
     lg.to_csv(ruta_log, index=False, encoding="utf-8-sig")
+    a.salida.with_name(a.salida.stem + "_flujo.json").write_text(
+        json.dumps(flujos, ensure_ascii=False, indent=2), encoding="utf-8")
     resumen = {
         "estudiantes": int(len(df)),
         "por_anio_sede_grado": {f"{k[0]}|{k[1]}|{k[2]}": int(v) for k, v in

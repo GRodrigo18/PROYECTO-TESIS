@@ -45,6 +45,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.inspection import permutation_importance
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import (
+    roc_curve,
     accuracy_score, average_precision_score, balanced_accuracy_score,
     brier_score_loss, cohen_kappa_score, confusion_matrix, f1_score, fbeta_score,
     log_loss, make_scorer, matthews_corrcoef, precision_recall_curve, precision_score,
@@ -163,7 +164,9 @@ def validar_y_excluir(df: pd.DataFrame):
         vistos.add(clave)
 
         reg = {"ID_Estudiante": clave[0], "anio": anio, "sede": sede_ok,
-               "grado": pd.to_numeric(r[col["GRADO"]], errors="coerce")}
+               "grado": pd.to_numeric(r[col["GRADO"]], errors="coerce"),
+               # sección: solo para reportar por aula; no es variable del modelo
+               "seccion": r[col["SECCION"]] if "SECCION" in col else None}
         sexo_raw = str(r[col["SEXO"]]).strip().upper() if "SEXO" in col and pd.notna(r[col["SEXO"]]) else ""
         # Nunca se inventa el sexo: si no viene en la fuente queda "No registrado".
         if sexo_raw.startswith(("F", "MUJ")):
@@ -393,6 +396,15 @@ def ejecutar(ruta_datos: Path, salida: Path, n_iter: int = 40, anio_test: int = 
                 por_grupo[gcol][str(g)] = {k: round(m[k], 4) for k in
                                            ("sensibilidad_recall", "precision", "f1", "pr_auc", "prevalencia")}
 
+    # Predicciones de la prueba fila por fila (para la curva ROC y el contraste por aula; fuera de git)
+    pd.DataFrame({"ID_Estudiante": limpio.loc[Xte.index, "ID_Estudiante"], "sede": Xte["sede"],
+                  "grado": Xte["grado"], "seccion": limpio.loc[Xte.index, "seccion"], "y_real": yte,
+                  "proba_rf": proba_te, "pred_rf": pred_rf, "pred_regla_B1B2": regla,
+                  "proba_logistica": p_lr}).to_csv(salida / "predicciones_prueba.csv", index=False, encoding="utf-8-sig")
+    fpr, tpr, umb = roc_curve(yte, proba_te)
+    sel = np.unique(np.linspace(0, len(fpr) - 1, min(len(fpr), 200)).astype(int))
+    curva_roc = {"fpr": fpr[sel].round(4).tolist(), "tpr": tpr[sel].round(4).tolist()}
+
     # Calibración e importancias
     fr, mp = calibration_curve(yte, proba_te, n_bins=10, strategy="quantile")
     nombres = mejor.named_steps["pre"].get_feature_names_out()
@@ -435,6 +447,7 @@ def ejecutar(ruta_datos: Path, salida: Path, n_iter: int = 40, anio_test: int = 
         "lineas_base": base,
         "pruebas_mcnemar": comp,
         "por_subgrupo": por_grupo,
+        "curva_roc": curva_roc,
         "calibracion": {"prob_media_predicha": mp.round(4).tolist(), "fraccion_real": fr.round(4).tolist()},
         "importancia_gini_top10": imp_gini.head(10).round(4).to_dict(),
         "importancia_permutacion_top10": imp_perm.head(10).round(4).to_dict(orient="records"),
