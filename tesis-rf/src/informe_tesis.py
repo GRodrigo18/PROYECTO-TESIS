@@ -297,6 +297,44 @@ def main():
     resumen = {"n_aulas_prueba": int(pr["aula"].nunique()), "flujo_total": tot.astype(int).to_dict(),
                "reglas": reglas.set_index("Regla")["Registros"].to_dict(),
                "mcnemar": inf["pruebas_mcnemar"], "hipotesis": hip}
+    # ------------------------------------------------------------------ 5b. Umbral de decisión
+    def con_umbral(y, proba, u):
+        y = np.asarray(y).astype(int)
+        a = np.asarray(proba) >= u
+        tp, fp, fn = int((a & (y == 1)).sum()), int((a & (y == 0)).sum()), int((~a & (y == 1)).sum())
+        sens = tp / (tp + fn) if tp + fn else 0.0
+        prec = tp / (tp + fp) if tp + fp else 0.0
+        return {"Alertas": tp + fp, "Detectados": tp, "No detectados": fn, "Falsas alarmas": fp,
+                "Sensibilidad": round(sens, 4), "Precisión": round(prec, 4),
+                "F1-Score": round(2 * sens * prec / (sens + prec), 4) if sens + prec else 0.0}
+    u_of = inf["umbral"]["valor"]
+    cortes = sorted({0.03, u_of, 0.2, 0.3, 0.5, 0.7})
+    t_umb = pd.DataFrame([{"Umbral": u, "Rol": ("Oficial (elegido con 2020-2024)" if u == u_of else
+                                                  "Referencia (convencional)" if u == 0.5 else ""),
+                           **con_umbral(pr["y_real"], pr["proba_rf"], u)} for u in cortes])
+    t_umb.to_csv(out / "tabla_comparacion_umbrales.csv", index=False, encoding="utf-8-sig")
+    oof = pd.read_csv(a.resultados / "predicciones_oof_entrenamiento.csv")
+    origen_umbral = {"umbral": u_of, "meta_sensibilidad": 0.90, **con_umbral(oof["y_real"], oof["proba_oof"], u_of),
+                     "n": int(len(oof)), "por_anio": {int(k): con_umbral(g["y_real"], g["proba_oof"], u_of)["Sensibilidad"]
+                                                      for k, g in oof.groupby("anio")}}
+    grid = np.linspace(0.01, 0.95, 95)
+    curva = pd.DataFrame([{"u": u, **con_umbral(pr["y_real"], pr["proba_rf"], u)} for u in grid])
+    fig, ax = plt.subplots(figsize=(6.4, 4.2))
+    estilo(ax, f"Sensibilidad y precisión según el umbral – prueba {inf['particion']['prueba']}")
+    ax.plot(curva["u"], curva["Sensibilidad"], color=AZUL, linewidth=2, label="Sensibilidad")
+    ax.plot(curva["u"], curva["Precisión"], color=NARANJA, linewidth=2, label="Precisión")
+    for u, txt in ((u_of, f"oficial {u_of:.3f}"), (0.5, "referencia 0,5")):
+        ax.axvline(u, color=GRIS, linestyle="--", linewidth=1)
+        ax.text(u + 0.01, 0.04, txt, color=TINTA2, fontsize=8, rotation=90, va="bottom")
+    ax.set_xlabel("Umbral de decisión (probabilidad mínima para emitir alerta)", color=TINTA2)
+    ax.set_ylabel("Valor de la métrica", color=TINTA2)
+    ax.set_xlim(0, 0.95)
+    ax.set_ylim(0, 1.02)
+    ax.legend(fontsize=9, frameon=False, loc="center right")
+    fig.tight_layout()
+    fig.savefig(out / "fig_umbrales.png", dpi=200)
+    plt.close(fig)
+
     # ------------------------------------------------------------------ 6. Despliegue: predicción 2026 (agregada)
     p26 = pd.read_csv(a.resultados / "predicciones_2026.csv")
     def resumen_2026(g):
@@ -306,6 +344,10 @@ def main():
     t26_sede = p26.groupby("sede").apply(resumen_2026).reset_index().rename(columns={"sede": "Sede"})
     t26_grado = p26.groupby("grado").apply(resumen_2026).reset_index().rename(columns={"grado": "Grado"})
     t26_total = resumen_2026(p26).to_dict()
+    u_des = inf.get("umbral_despliegue", {}).get("valor")
+    alertas_2026 = {"oficial": {"umbral": u_of, "alertas": int((p26["probabilidad_riesgo"] >= u_of).sum())}}
+    if u_des is not None:
+        alertas_2026["despliegue"] = {"umbral": u_des, "alertas": int((p26["probabilidad_riesgo"] >= u_des).sum())}
     t26_sede.to_csv(out / "tabla_prediccion_2026_por_sede.csv", index=False, encoding="utf-8-sig")
     t26_grado.to_csv(out / "tabla_prediccion_2026_por_grado.csv", index=False, encoding="utf-8-sig")
 
@@ -317,7 +359,9 @@ def main():
     (out / "tablas.json").write_text(json.dumps(
         {k: json.loads(v.to_json(orient="records", force_ascii=False)) for k, v in tablas.items()}
         | {"informe": inf, "n_aulas_prueba": int(pr["aula"].nunique()), "perfil": perfil,
-           "prediccion_2026_total": {k: float(v) for k, v in t26_total.items()}},
+           "prediccion_2026_total": {k: float(v) for k, v in t26_total.items()},
+           "umbrales": t_umb.to_dict(orient="records"), "origen_umbral": origen_umbral,
+           "alertas_2026_por_umbral": alertas_2026, "n_estudiantes_2026": int(len(p26))},
         ensure_ascii=False, indent=1), encoding="utf-8")
     (out / "resumen.json").write_text(json.dumps(resumen, ensure_ascii=False, indent=2, default=str), encoding="utf-8")
     print(t_flujo.to_string(index=False))

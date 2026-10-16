@@ -375,6 +375,9 @@ def ejecutar(ruta_datos: Path, salida: Path, n_iter: int = 40, anio_test: int = 
     # Umbral elegido SOLO con predicciones fuera de muestra del entrenamiento (sin mirar 2025)
     proba_oof = cross_val_predict(clone(mejor), Xtr, ytr, groups=gtr, cv=cv, method="predict_proba")[:, 1]
     umbral, criterio = umbral_optimo(ytr, proba_oof)
+    # Predicciones fuera de muestra con las que se eligió el umbral (fila por fila, fuera de git)
+    pd.DataFrame({"anio": gtr.values, "y_real": ytr.values, "proba_oof": proba_oof}).to_csv(
+        salida / "predicciones_oof_entrenamiento.csv", index=False, encoding="utf-8-sig")
 
     proba_te = mejor.predict_proba(Xte)[:, 1]
     res_test = {"umbral_0.5": metricas(yte, proba_te, 0.5), "umbral_optimo": metricas(yte, proba_te, umbral)}
@@ -427,6 +430,12 @@ def ejecutar(ruta_datos: Path, salida: Path, n_iter: int = 40, anio_test: int = 
 
     # Modelo final (2020-2025) -> predicción 2026
     final = clone(mejor).fit(X[(anios <= 2025) & y.notna()], y[(anios <= 2025) & y.notna()].astype(int))
+    # Umbral de despliegue: mismo criterio, recalculado con 2020-2025 (dejando un año fuera).
+    # Solo para el modelo que predice 2026; la evaluación de 2025 usa el umbral elegido con 2020-2024.
+    m_fin = (anios <= 2025) & y.notna()
+    proba_oof_fin = cross_val_predict(clone(mejor), X[m_fin], y[m_fin].astype(int), groups=anios[m_fin],
+                                      cv=cv, method="predict_proba")[:, 1]
+    umbral_despliegue, criterio_despliegue = umbral_optimo(y[m_fin].astype(int), proba_oof_fin)
     joblib.dump({"modelo": final, "umbral": umbral, "criterio_umbral": criterio, "cursos": cursos,
                  "cursos_extra": list(cursos_extra), "extra_en_x": extra_en_x,
                  "columnas": list(X.columns), "sedes": SEDES_VALIDAS}, salida / "modelo_rf.joblib")
@@ -457,6 +466,8 @@ def ejecutar(ruta_datos: Path, salida: Path, n_iter: int = 40, anio_test: int = 
         "brecha_entrenamiento_validacion_pr_auc": round(float(mejor_fila["mean_train_pr_auc"] - mejor_fila["mean_test_pr_auc"]), 4),
         "curvas_validacion_marginales": curvas,
         "umbral": {"valor": round(umbral, 4), "criterio": criterio},
+        "umbral_despliegue": {"valor": round(umbral_despliegue, 4), "criterio": criterio_despliegue,
+                              "datos": "2020-2025, validación cruzada dejando un año fuera"},
         "test": res_test,
         "lineas_base": base,
         "pruebas_mcnemar": comp,

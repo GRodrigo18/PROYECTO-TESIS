@@ -25,3 +25,4 @@ tesis-rf/resultados_complementario_tutoria/*/registros_excluidos.csv
 tesis-rf/resultados_complementario_tutoria/*/predicciones_prueba.csv
 tesis-rf/resultados_complementario_tutoria/*/predicciones_2026.csv
 tesis-rf/resultados_complementario_tutoria/*/modelo_rf.joblib
+tesis-rf/resultados/predicciones_oof_entrenamiento.csv

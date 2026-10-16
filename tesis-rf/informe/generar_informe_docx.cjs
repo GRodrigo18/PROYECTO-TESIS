@@ -193,6 +193,23 @@ c.push(tabla(["Métrica", "RF (umbral elegido)", "IC 95 %", "RF (umbral 0,5)", "
 c.push(fuente("Fuente: Elaborado por los autores. Situación actual = alerta cuando el estudiante tiene alguna nota C en B1 o B2. IC 95 % por bootstrap (1 000 remuestreos)."));
 c.push(p([`Con el umbral elegido (${num(opt.umbral)}), el modelo alcanzó una sensibilidad de ${pct(opt.sensibilidad_recall)}, una precisión de ${pct(opt.precision)} y un F1-Score de ${num(opt.f1)}. Con el umbral 0,5, la precisión sube a ${pct(m05.precision)} y el F1-Score a ${num(m05.f1)}, pero la sensibilidad baja a ${pct(m05.sensibilidad_recall)}. La situación actual detecta a todos los estudiantes en riesgo (sensibilidad ${pct(regla.sensibilidad_recall)}) con una precisión de ${pct(regla.precision)}. La principal ventaja del modelo es su capacidad de ordenar por riesgo: PR-AUC ${num(opt.pr_auc)} frente a ${num(regla.pr_auc)} de la regla.`]));
 
+// 4.1 Umbral de decisión
+const ou = T.origen_umbral;
+c.push(h2("4.1 Elección del umbral de decisión"));
+c.push(p("El modelo no entrega directamente un «sí» o un «no»: para cada estudiante calcula una probabilidad de terminar el año con al menos un área en C. El umbral de decisión es el punto de corte que convierte esa probabilidad en una alerta: si la probabilidad es igual o mayor que el umbral, el estudiante recibe una alerta de riesgo. Cada umbral produce un equilibrio distinto entre detectar a los estudiantes en riesgo (sensibilidad) y que las alertas sean correctas (precisión), por lo que no existe un umbral que sea mejor en todas las métricas a la vez."));
+c.push(p([b("Cómo se obtuvo el umbral oficial. "), `El umbral se fijó antes de evaluar la cohorte ${part.prueba}, solo con los datos de ${part.entrenamiento}. Cada año de ese periodo se predijo con un modelo entrenado en los demás años (validación cruzada dejando un año fuera), de modo que todas las probabilidades se obtuvieron sobre estudiantes que el modelo no había visto. Sobre esas ${miles(ou.n)} predicciones se probaron todos los cortes posibles y se eligió el de mayor precisión que mantiene una sensibilidad mínima de ${num(ou.meta_sensibilidad, 2)}, criterio que prioriza no omitir estudiantes en riesgo porque, en un sistema de alerta temprana, un estudiante no detectado no recibe apoyo, mientras que una alerta adicional solo implica una revisión tutorial. El resultado fue ${num(ou.umbral)}: con ese corte, en ${part.entrenamiento} se detectó al ${pct(ou.Sensibilidad)} de los estudiantes en riesgo con una precisión de ${pct(ou["Precisión"])}. Este valor se aplicó sin cambios a ${part.prueba}.`]));
+c.push(titulo("Tabla", `Comparación de umbrales de decisión en la prueba ${part.prueba}.`));
+c.push(tabla(["Umbral", "Rol", "Alertas", "Detectados", "No detectados", "Falsas alarmas", "Sensibilidad", "Precisión", "F1-Score"],
+  T.umbrales.map((r) => { const f = [num(r.Umbral), r.Rol || "—", miles(r.Alertas), miles(r.Detectados), miles(r["No detectados"]), miles(r["Falsas alarmas"]), pct(r.Sensibilidad), pct(r["Precisión"]), num(r["F1-Score"])]; if (r.Rol) f._negrita = true; return f; }),
+  [8, 19, 9, 10, 10, 10, 11, 10, 9]));
+c.push(fuente(`Fuente: Elaborado por los autores. ${miles(part.n_test)} estudiantes de ${part.prueba}, de los cuales ${miles(mc.tp + mc.fn)} terminaron con bajo rendimiento.`));
+c.push(titulo("Figura", `Sensibilidad y precisión según el umbral en la prueba ${part.prueba}.`));
+c.push(imagen("fig_umbrales.png", 450));
+c.push(fuente());
+const fila05 = T.umbrales.find((r) => r.Umbral === 0.5);
+c.push(p([`Al bajar el umbral aumentan las alertas y la sensibilidad, pero también las falsas alarmas; al subirlo ocurre lo contrario. Con el umbral oficial se detectaron ${miles(mc.tp)} de ${miles(mc.tp + mc.fn)} estudiantes en riesgo. Con el umbral convencional de 0,5 las alertas son más certeras (precisión ${pct(fila05["Precisión"])}), pero ${miles(fila05["No detectados"])} estudiantes en riesgo quedan sin alerta. El umbral oficial es el que se usa para contrastar las hipótesis; el de 0,5 se reporta solo como referencia.`]));
+c.push(p([b("Por qué no se ajusta el umbral con los resultados de la prueba. "), `En ${part.prueba} el modelo separó mejor a los grupos que en los años de entrenamiento, por lo que con ${num(ou.umbral)} superó holgadamente la meta del 90 % de sensibilidad. Elegir ahora otro umbral porque da mejores cifras en ${part.prueba} haría que la evaluación dejara de ser independiente: el umbral quedaría ajustado a los mismos datos con los que se mide, y las métricas resultarían optimistas.`]));
+
 // 5. Importancia
 c.push(h1("5. Importancia de las variables predictoras"));
 c.push(titulo("Figura", "Importancia de las variables por permutación."));
@@ -239,6 +256,10 @@ c.push(tabla(["Grado", "Estudiantes", "Con alerta", "% con alerta", "Probabilida
   T.prediccion_2026_grado.map((r) => [`${r.Grado}.°`, miles(r.Estudiantes), miles(r["Con alerta"]), num(r["% con alerta"], 1) + " %", num(r["Probabilidad media"])]),
   [30, 17, 17, 17, 19]));
 c.push(fuente());
+const a26 = T.alertas_2026_por_umbral;
+if (a26.despliegue) {
+  c.push(p([b("Umbral de despliegue. "), `Una vez evaluado el modelo, el modelo final se reentrenó con ${part.entrenamiento.split("-")[0]}-${part.prueba}. Con el mismo criterio (mayor precisión con sensibilidad de al menos 0,90), recalculado con las predicciones fuera de muestra de ${part.entrenamiento.split("-")[0]}-${part.prueba}, el umbral de despliegue resulta ${num(a26.despliegue.umbral)}. Con él, ${miles(a26.despliegue.alertas)} de ${miles(T.n_estudiantes_2026)} estudiantes de ${part.prediccion} recibirían alerta, frente a ${miles(a26.oficial.alertas)} con el umbral de evaluación (${num(a26.oficial.umbral)}). Recalcular el umbral para el despliegue no afecta la evaluación, porque ${part.prueba} ya fue evaluado y ${part.prediccion} no interviene en la elección.`]));
+}
 c.push(p(`Con el umbral elegido (${num(opt.umbral)}), ${miles(t26["Con alerta"])} estudiantes (${num(t26["% con alerta"], 1)} %) reciben una alerta temprana. La lista individual, identificada solo por código seudónimo, se entrega a la institución para la intervención tutorial y no se publica en el documento.`));
 
 // 8. Observaciones
