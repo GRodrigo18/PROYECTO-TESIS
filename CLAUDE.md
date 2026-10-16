@@ -69,9 +69,20 @@ Excel del pipeline. Solo secundaria (1º-5º). Decisiones:
 - Estudiante con notas pero sin ficha: se conserva sin sexo, con ID `SINDNI-…`, y queda en el log.
 - Un área duplicada con valores distintos no se resuelve a mano: queda vacía y se excluye.
 
-Hallazgos 2020: 726 estudiantes; falta la ficha de Avantgard Lima 3º (14 sin sexo); Industrial
-solo tiene 1º-2º y Avantgard Lima no tiene 5º; MATEMÁTICA aparece duplicada (idéntica) en
-Industrial 2º; prevalencia de riesgo 3.6% (año de pandemia).
+- Una sección copiada en la carpeta de otra sede (mismos alumnos y notas) se conserva solo donde
+  los alumnos tienen ficha; la copia se descarta y queda en el log (`seccion_copiada_descartada`).
+- La sede se reconoce por palabra clave (las carpetas traen "HUAHURA", "INDUSTRIIAL", "ASECENSION").
+
+Hallazgos por año (consolidado → válidos tras auditar; riesgo = algún Final en C):
+
+| Año  | Consolidados | Válidos | Riesgo | Notas |
+|------|-------------:|--------:|-------:|-------|
+| 2020 | 726  | 666  | 3.9%  | Falta ficha de Avantgard Lima 3º (14 sin sexo). Industrial solo 1º-2º. MATEMÁTICA duplicada idéntica en Industrial 2º. Año de pandemia. |
+| 2021 | 878  | 856  | 15.1% | Sin incidencias. Escala mixta (letras y números). |
+| 2022 | 1094 | 1035 | 5.2%  | La carpeta de notas de Industrial es copia de la de Avantgard Lima (216 alumnos): descartada; faltan las notas reales de Industrial 2022 (307 fichas sin notas). Escala mixta. |
+
+La Ascensión concentra el riesgo (6.8% / 32.4% / 12.9%). La regla "alguna C en B1-B2" detecta
+204 de 209 casos de riesgo 2020-2022 con 299 falsas alarmas: es la línea base a superar.
 
 Regla de exclusión por etapa: B1, B2 y Final inválidos excluyen el registro; B3 y B4 solo se
 reportan en `valores_a_revisar` (no entran al modelo), salvo B4 cuando hace de nota de cierre.

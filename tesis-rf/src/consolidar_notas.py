@@ -49,10 +49,11 @@ AREAS = {
     "CIENCIAS SOCIALES": "Ciencias Sociales",
 }
 ETAPAS = ["B1", "B2", "B3", "B4", "Final"]  # columnas 1, 2, 3, 4, PF del Excel
-SEDES = {
-    "CENTRAL": "Central", "INDUSTRIAL": "Industrial", "ASCENSION": "La Ascensión", "LA ASCENSION": "La Ascensión",
-    "AVANTGARD LIMA": "Avantgard Lima", "AVANTGARD HUAURA": "Avantgard Huaura", "AVANTGARD HUAHURUA": "Avantgard Huaura",
-}
+# Sede por palabra clave: los nombres de carpeta traen variantes ("HUAHURUA", "INDUSTRIIAL", "ASECENSION")
+SEDES = [
+    (r"HUA", "Avantgard Huaura"), (r"LIMA", "Avantgard Lima"), (r"CENTRAL", "Central"),
+    (r"INDUS", "Industrial"), (r"AS[CE]+N", "La Ascensión"),
+]
 
 
 def norm(s) -> str:
@@ -60,8 +61,10 @@ def norm(s) -> str:
     return re.sub(r"\s+", " ", s).strip().upper()
 
 
-def sede_de(nombre_carpeta: str) -> str | None:
-    return SEDES.get(norm(nombre_carpeta))
+def sede_de(texto: str) -> str | None:
+    t = norm(texto)
+    hits = {sede for patron, sede in SEDES if re.search(patron, t)}
+    return hits.pop() if len(hits) == 1 else None
 
 
 def grado_de(texto) -> int | None:
@@ -167,20 +170,54 @@ def seudonimo(clave: bytes, texto: str, prefijo="E") -> str:
     return prefijo + hmac.new(clave, texto.encode(), hashlib.sha256).hexdigest()[:12].upper()
 
 
+def buscar_ficha(fichas, sede, grado, nombre):
+    k = clave_nombre_abreviado(nombre)
+    cands = [d for d in fichas[(sede, grado)] if k and d["clave"] == k]
+    if k and not cands:  # apellido compuesto: "De la Cruz" vs "DE"
+        cands = [d for d in fichas[(sede, grado)] if d["clave"][2] == k[2] and k[0].startswith(d["clave"][0])]
+    return cands
+
+
+def descartar_copias(archivos: list[dict], fichas, anio_dir: Path, log: list) -> list[dict]:
+    """
+    Una sección copiada en la carpeta de otra sede (mismos alumnos, mismas notas) se conserva solo
+    donde los alumnos tienen ficha en esa sede. Si no se puede decidir, se descartan todas las copias.
+    """
+    grupos = defaultdict(list)
+    for a in archivos:
+        grupos[tuple(sorted(tuple(map(str, al.values())) for al in a["alumnos"]))].append(a)
+    descartar = set()
+    for copias in grupos.values():
+        if len({c["sede"] for c in copias}) < 2:
+            continue
+        def tasa(c):
+            return sum(len(buscar_ficha(fichas, c["sede"], c["grado"], al["nombre"])) == 1
+                       for al in c["alumnos"]) / max(len(c["alumnos"]), 1)
+        buenas = [c for c in copias if tasa(c) >= 0.5]
+        conservar = buenas[0]["rel"] if len(buenas) == 1 else None
+        for c in copias:
+            if c["rel"] != conservar:
+                descartar.add(c["rel"])
+                log.append({"tipo": "seccion_copiada_descartada", "archivo": c["rel"],
+                            "detalle": f"idéntica a {[o['rel'] for o in copias if o is not c]}; se conserva: {conservar}"})
+    return [a for a in archivos if a["rel"] not in descartar]
+
+
 def consolidar_anio(anio_dir: Path, anio: int, clave: bytes, log: list) -> list[dict]:
     fichas = leer_datos_estudiante(anio_dir, log)
-    filas = []
+    archivos = []
     for f in sorted((anio_dir / "Consolidado_Notas_Curso").rglob("*.xlsx")):
         rel = str(f.relative_to(anio_dir))
         sede, grado = sede_de(f.parent.name), grado_de(f.name)
         if sede is None or grado is None:
             log.append({"tipo": "archivo_sin_sede_o_grado", "archivo": rel, "detalle": ""})
             continue
-        for al in leer_notas(f, anio_dir, log):
-            k = clave_nombre_abreviado(al["nombre"])
-            cands = [d for d in fichas[(sede, grado)] if k and d["clave"] == k]
-            if k and not cands:  # apellido compuesto: "De la Cruz" vs "DE"
-                cands = [d for d in fichas[(sede, grado)] if d["clave"][2] == k[2] and k[0].startswith(d["clave"][0])]
+        archivos.append({"rel": rel, "sede": sede, "grado": grado, "alumnos": leer_notas(f, anio_dir, log)})
+    filas = []
+    for arch in descartar_copias(archivos, fichas, anio_dir, log):
+        rel, sede, grado = arch["rel"], arch["sede"], arch["grado"]
+        for al in arch["alumnos"]:
+            cands = buscar_ficha(fichas, sede, grado, al["nombre"])
             ficha = cands[0] if len(cands) == 1 else None
             if len(cands) > 1:
                 log.append({"tipo": "emparejamiento_ambiguo", "archivo": rel, "detalle": f"{al['nombre']} -> {[c['nombre'] for c in cands]}"})
