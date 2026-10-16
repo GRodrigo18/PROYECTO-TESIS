@@ -115,7 +115,8 @@ def _norm(s: str) -> str:
 # ---------------------------------------------------------------------------
 # 2. VALIDACIÓN Y EXCLUSIÓN (trazable registro por registro)
 # ---------------------------------------------------------------------------
-def validar_y_excluir(df: pd.DataFrame):
+def validar_y_excluir(df: pd.DataFrame, cursos_extra: tuple[str, ...] = ()):
+    """cursos_extra: áreas que solo aportan variables (B1, B2); no se exige ni se valida su nota final."""
     df = df.copy()
     df.columns = [_norm(c) for c in df.columns]
     col = {c.upper(): c for c in df.columns}
@@ -137,7 +138,7 @@ def validar_y_excluir(df: pd.DataFrame):
             d["FINAL"] = d["B4"]
         if not set(BIMESTRES_TEMPRANOS) <= set(d):
             raise FormatoSinBimestres(f"El curso {cur} no trae B1 y B2.\n\n" + MENSAJE_SIN_BIMESTRES)
-        if "FINAL" not in d:
+        if "FINAL" not in d and cur not in cursos_extra:
             raise ValueError(f"El curso {cur} necesita una columna {cur}_Final (o {cur}_B4) con la nota de cierre.")
 
     # Escala predominante por año (literal vs vigesimal)
@@ -179,7 +180,7 @@ def validar_y_excluir(df: pd.DataFrame):
         es_2026 = anio == 2026
         lit = escala_literal.get(anio, True)
         for cur, d in cursos.items():
-            for etapa in BIMESTRES_TEMPRANOS + ([] if es_2026 else ["FINAL"]):
+            for etapa in BIMESTRES_TEMPRANOS + ([] if es_2026 or cur in cursos_extra else ["FINAL"]):
                 v, err = estandarizar_nota(r[d[etapa]], lit)
                 reg[f"{cur}_{etapa}"] = v
                 if err:
@@ -209,13 +210,19 @@ def validar_y_excluir(df: pd.DataFrame):
 # ---------------------------------------------------------------------------
 # 3. INGENIERÍA DE VARIABLES (solo B1-B2) Y ETIQUETA (Final)
 # ---------------------------------------------------------------------------
-def construir_variables(df: pd.DataFrame, cursos: list[str]):
+def construir_variables(df: pd.DataFrame, cursos: list[str], cursos_extra: tuple[str, ...] = (),
+                        extra_en_x: bool = True):
+    """
+    Las áreas de `cursos_extra` (p. ej. Tutoría) no entran en la etiqueta ni en los agregados
+    (promedio, mínimo, n.º de C/B): solo aportan sus propias B1, B2 y tendencia si extra_en_x.
+    """
+    principales = [c for c in cursos if c not in cursos_extra]
     X = pd.DataFrame(index=df.index)
-    for c in cursos:
+    for c in principales + (list(cursos_extra) if extra_en_x else []):
         X[f"{c}_B1"] = df[f"{c}_B1"]
         X[f"{c}_B2"] = df[f"{c}_B2"]
         X[f"{c}_tendencia"] = df[f"{c}_B2"] - df[f"{c}_B1"]
-    b = df[[f"{c}_{e}" for c in cursos for e in BIMESTRES_TEMPRANOS]]
+    b = df[[f"{c}_{e}" for c in principales for e in BIMESTRES_TEMPRANOS]]
     X["promedio_B1B2"] = b.mean(axis=1)
     X["minimo_B1B2"] = b.min(axis=1)
     X["n_notas_C_B1B2"] = (b == 0).sum(axis=1)
@@ -223,7 +230,7 @@ def construir_variables(df: pd.DataFrame, cursos: list[str]):
     X["grado"] = df["grado"]
     X["sede"] = df["sede"]
     X["sexo"] = df["sexo"]
-    finales = [f"{c}_FINAL" for c in cursos]
+    finales = [f"{c}_FINAL" for c in principales]
     y = None
     if set(finales) <= set(df.columns):
         y = (df[finales].min(axis=1) == 0).astype(float)
@@ -319,14 +326,18 @@ ESPACIO_RF = {
 }
 
 
-def ejecutar(ruta_datos: Path, salida: Path, n_iter: int = 40, anio_test: int = 2025):
+def ejecutar(ruta_datos: Path, salida: Path, n_iter: int = 40, anio_test: int = 2025,
+             cursos_extra: tuple[str, ...] = (), extra_en_x: bool = True):
     salida.mkdir(parents=True, exist_ok=True)
     bruto = pd.read_excel(ruta_datos) if ruta_datos.suffix.lower() in {".xlsx", ".xls"} else pd.read_csv(ruta_datos)
 
-    limpio, excl, resumen_excl, cursos = validar_y_excluir(bruto)
+    limpio, excl, resumen_excl, cursos = validar_y_excluir(bruto, cursos_extra)
+    faltan = [c for c in cursos_extra if c not in cursos]
+    if faltan:
+        raise ValueError(f"No se encontraron las áreas extra {faltan} en el archivo.")
     excl.to_csv(salida / "registros_excluidos.csv", index=False, encoding="utf-8-sig")
 
-    X, y = construir_variables(limpio, cursos)
+    X, y = construir_variables(limpio, cursos, cursos_extra, extra_en_x)
     anios = limpio["anio"].astype(int)
     m_train = (anios < anio_test) & y.notna()
     m_test = (anios == anio_test) & y.notna()
@@ -417,6 +428,7 @@ def ejecutar(ruta_datos: Path, salida: Path, n_iter: int = 40, anio_test: int = 
     # Modelo final (2020-2025) -> predicción 2026
     final = clone(mejor).fit(X[(anios <= 2025) & y.notna()], y[(anios <= 2025) & y.notna()].astype(int))
     joblib.dump({"modelo": final, "umbral": umbral, "criterio_umbral": criterio, "cursos": cursos,
+                 "cursos_extra": list(cursos_extra), "extra_en_x": extra_en_x,
                  "columnas": list(X.columns), "sedes": SEDES_VALIDAS}, salida / "modelo_rf.joblib")
     if m_pred.any():
         p26 = final.predict_proba(X[m_pred])[:, 1]
@@ -432,6 +444,8 @@ def ejecutar(ruta_datos: Path, salida: Path, n_iter: int = 40, anio_test: int = 
 
     informe = {
         "cursos": cursos,
+        "cursos_extra": list(cursos_extra),
+        "extra_en_x": extra_en_x,
         "n_arboles_modelo_final": len(final.named_steps["rf"].estimators_),
         "validacion_exclusion": resumen_excl,
         "particion": {"entrenamiento": f"2020-{anio_test - 1}", "prueba": anio_test, "prediccion": 2026,
@@ -497,13 +511,18 @@ if __name__ == "__main__":
     ap.add_argument("--salida", type=Path, default=Path("resultados"))
     ap.add_argument("--n-iter", type=int, default=40)
     ap.add_argument("--demo", action="store_true")
+    ap.add_argument("--cursos-extra", nargs="*", default=[],
+                    help="áreas que solo aportan B1-B2 como variables (no entran en la etiqueta), p. ej. Tutoria")
+    ap.add_argument("--sin-extra-en-x", action="store_true",
+                    help="valida las áreas extra (mismos registros) pero no las usa como variables: modelo de comparación")
     a = ap.parse_args()
     if a.demo:
         a.datos = generar_demo(Path("datos_demo.xlsx"))
     elif a.datos is None:
         ap.error("indica --datos <archivo> o --demo")
     try:
-        inf = ejecutar(a.datos, a.salida, a.n_iter)
+        inf = ejecutar(a.datos, a.salida, a.n_iter, cursos_extra=tuple(a.cursos_extra),
+                       extra_en_x=not a.sin_extra_en_x)
     except FormatoSinBimestres as e:
         print(f"\nNO SE ENTRENÓ EL MODELO.\n\n{e}", file=sys.stderr)
         sys.exit(2)
