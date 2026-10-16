@@ -1,0 +1,10 @@
+﻿Regla,Fase,Criterio de exclusión,Cómo se aplica,Registros
+C1,Consolidación,Sección de notas copiada de otra sede,Mismos alumnos y mismas notas que una sección de otra sede; se conserva solo donde los alumnos tienen ficha.,216
+C2,Consolidación,Alumno con notas sin ficha de datos del estudiante,"Sin ficha no hay DNI (ID estable), sexo ni sección: el registro se excluye.",14
+C3,Consolidación,Ficha de estudiante sin notas en el sistema,No existe registro académico que consolidar; no entra al conjunto.,333
+V1,Validación,Año académico inválido,Año vacío o fuera de 2020-2026.,0
+V2,Validación,Sede inválida o vacía,La sede no es una de las cinco sedes del grupo educativo.,0
+V3,Validación,Sin identificador,ID_Estudiante vacío.,0
+V4,Validación,Registro duplicado,Mismo ID_Estudiante y año más de una vez.,0
+V5,Validación,Nota final (PF) vacía o inválida en algún área,Sin nota de cierre no se puede construir la etiqueta (riesgo = alguna área con PF en C).,90
+V6,Validación,Nota de B1 o B2 vacía o inválida en algún área,Sin las notas tempranas no se pueden construir las variables predictoras.,495

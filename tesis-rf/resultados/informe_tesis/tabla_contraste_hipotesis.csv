@@ -1,0 +1,7 @@
+﻿hipotesis,umbral_rf,metrica,n_aulas,media_rf,media_situacion_actual,diferencia_media,shapiro_w,shapiro_p,normalidad,prueba,estadistico,p_valor,decision
+H1,umbral elegido (0.094),sensibilidad,34,0.9853,1.0,-0.0147,0.1647,0.0,no normal,Wilcoxon de rangos con signo (unilateral),0.0,0.8413,No se rechaza H0
+H2,umbral elegido (0.094),precision,62,0.2445,0.2422,0.0023,0.2634,0.0,no normal,Wilcoxon de rangos con signo (unilateral),7.0,0.2326,No se rechaza H0
+H3,umbral elegido (0.094),f1,62,0.3214,0.322,-0.0006,0.2497,0.0,no normal,Wilcoxon de rangos con signo (unilateral),6.0,0.3575,No se rechaza H0
+H1,umbral 0.5,sensibilidad,34,0.6096,1.0,-0.3904,0.8408,0.0002,no normal,Wilcoxon de rangos con signo (unilateral),0.0,1.0,No se rechaza H0
+H2,umbral 0.5,precision,29,0.7794,0.4286,0.3508,0.9653,0.441,normal,t de Student para muestras relacionadas (unilateral),7.5055,0.0,Se rechaza H0: se acepta H1
+H3,umbral 0.5,f1,35,0.5931,0.5704,0.0227,0.9539,0.149,normal,t de Student para muestras relacionadas (unilateral),0.3689,0.3572,No se rechaza H0

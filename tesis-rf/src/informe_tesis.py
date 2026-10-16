@@ -76,6 +76,20 @@ def tipo_problema(motivos: str) -> list[str]:
     return [x.split(":", 1)[1] for x in motivos.split(" | ") if ":" in x]
 
 
+def etiqueta_variable(v: str) -> str:
+    fijas = {"n_notas_C_B1B2": "N.º de notas C en B1-B2", "n_notas_B_B1B2": "N.º de notas B en B1-B2",
+             "promedio_B1B2": "Promedio B1-B2", "minimo_B1B2": "Nota mínima B1-B2", "grado": "Grado"}
+    if v in fijas:
+        return fijas[v]
+    cursos = {"Matematica": "Matemática", "Comunicacion": "Comunicación", "Ingles": "Inglés",
+              "Ciencia y Tecnologia": "Ciencia y Tecnología", "Ciencias Sociales": "Ciencias Sociales"}
+    m = re.match(r"^(.*)_(B1|B2|tendencia)$", v)
+    if m:
+        etapa = "tendencia B2−B1" if m.group(2) == "tendencia" else m.group(2)
+        return f"{cursos.get(m.group(1), m.group(1))} ({etapa})"
+    return v.replace("cat__", "").replace("num__", "")
+
+
 def estilo(ax, titulo=None):
     ax.spines[["top", "right"]].set_visible(False)
     for s in ("left", "bottom"):
@@ -253,13 +267,14 @@ def main():
     fig, ax = plt.subplots(figsize=(6.4, 4.6))
     estilo(ax, "Importancia por permutación (caída de PR-AUC en 2025)")
     ax.grid(axis="y", visible=False)
-    ax.barh(imp["variable"].str.replace("_", " "), imp["importancia_media"], xerr=imp["desv_std"],
+    ax.barh(imp["variable"].map(etiqueta_variable), imp["importancia_media"], xerr=imp["desv_std"],
             color=AZUL, height=0.6, error_kw={"ecolor": TINTA2, "elinewidth": 1, "capsize": 2})
     ax.set_xlabel("Disminución media de PR-AUC (± desviación estándar, 20 repeticiones)", color=TINTA2, fontsize=9)
     fig.tight_layout()
     fig.savefig(out / "fig_importancia_variables.png", dpi=200)
     plt.close(fig)
-    imp.iloc[::-1].to_csv(out / "tabla_importancia_variables.csv", index=False, encoding="utf-8-sig")
+    imp.iloc[::-1].assign(etiqueta=lambda d: d["variable"].map(etiqueta_variable)).to_csv(
+        out / "tabla_importancia_variables.csv", index=False, encoding="utf-8-sig")
 
     # ------------------------------------------------------------------ 5. Contraste de hipótesis
     pr = pd.read_csv(a.resultados / "predicciones_prueba.csv")

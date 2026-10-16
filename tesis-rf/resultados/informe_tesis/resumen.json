@@ -1,0 +1,141 @@
+{
+  "n_aulas_prueba": 70,
+  "flujo_total": {
+    "Fichas de estudiantes (secundaria)": 10473,
+    "Registros de notas en bruto": 10370,
+    "C1 Sección copiada de otra sede": -216,
+    "C2 Sin ficha de datos": -14,
+    "Registros consolidados": 10140,
+    "C3 Fichas sin notas (no ingresan)": 333,
+    "V1 Año académico inválido": 0,
+    "V2 Sede inválida o vacía": 0,
+    "V3 Sin identificador": 0,
+    "V4 Registro duplicado": 0,
+    "V5 Nota final (PF) vacía o inválida en algún área": -90,
+    "V6 Nota de B1 o B2 vacía o inválida en algún área": -495,
+    "Registros finales (válidos)": 9555
+  },
+  "reglas": {
+    "C1": 216,
+    "C2": 14,
+    "C3": 333,
+    "V1": 0,
+    "V2": 0,
+    "V3": 0,
+    "V4": 0,
+    "V5": 90,
+    "V6": 495
+  },
+  "mcnemar": {
+    "RF_vs_regla_B1B2": {
+      "a_acierta_b_falla": 11,
+      "b_acierta_a_falla": 1,
+      "chi2": 6.75,
+      "p_valor": 0.0094
+    },
+    "RF_vs_logistica": {
+      "a_acierta_b_falla": 27,
+      "b_acierta_a_falla": 36,
+      "chi2": 1.0159,
+      "p_valor": 0.3135
+    }
+  },
+  "hipotesis": [
+    {
+      "hipotesis": "H1",
+      "umbral_rf": "umbral elegido (0.094)",
+      "metrica": "sensibilidad",
+      "n_aulas": 34,
+      "media_rf": 0.9853,
+      "media_situacion_actual": 1.0,
+      "diferencia_media": -0.0147,
+      "shapiro_w": 0.1647,
+      "shapiro_p": 0.0,
+      "normalidad": "no normal",
+      "prueba": "Wilcoxon de rangos con signo (unilateral)",
+      "estadistico": 0.0,
+      "p_valor": 0.8413,
+      "decision": "No se rechaza H0"
+    },
+    {
+      "hipotesis": "H2",
+      "umbral_rf": "umbral elegido (0.094)",
+      "metrica": "precision",
+      "n_aulas": 62,
+      "media_rf": 0.2445,
+      "media_situacion_actual": 0.2422,
+      "diferencia_media": 0.0023,
+      "shapiro_w": 0.2634,
+      "shapiro_p": 0.0,
+      "normalidad": "no normal",
+      "prueba": "Wilcoxon de rangos con signo (unilateral)",
+      "estadistico": 7.0,
+      "p_valor": 0.2326,
+      "decision": "No se rechaza H0"
+    },
+    {
+      "hipotesis": "H3",
+      "umbral_rf": "umbral elegido (0.094)",
+      "metrica": "f1",
+      "n_aulas": 62,
+      "media_rf": 0.3214,
+      "media_situacion_actual": 0.322,
+      "diferencia_media": -0.0006,
+      "shapiro_w": 0.2497,
+      "shapiro_p": 0.0,
+      "normalidad": "no normal",
+      "prueba": "Wilcoxon de rangos con signo (unilateral)",
+      "estadistico": 6.0,
+      "p_valor": 0.3575,
+      "decision": "No se rechaza H0"
+    },
+    {
+      "hipotesis": "H1",
+      "umbral_rf": "umbral 0.5",
+      "metrica": "sensibilidad",
+      "n_aulas": 34,
+      "media_rf": 0.6096,
+      "media_situacion_actual": 1.0,
+      "diferencia_media": -0.3904,
+      "shapiro_w": 0.8408,
+      "shapiro_p": 0.0002,
+      "normalidad": "no normal",
+      "prueba": "Wilcoxon de rangos con signo (unilateral)",
+      "estadistico": 0.0,
+      "p_valor": 1.0,
+      "decision": "No se rechaza H0"
+    },
+    {
+      "hipotesis": "H2",
+      "umbral_rf": "umbral 0.5",
+      "metrica": "precision",
+      "n_aulas": 29,
+      "media_rf": 0.7794,
+      "media_situacion_actual": 0.4286,
+      "diferencia_media": 0.3508,
+      "shapiro_w": 0.9653,
+      "shapiro_p": 0.441,
+      "normalidad": "normal",
+      "prueba": "t de Student para muestras relacionadas (unilateral)",
+      "estadistico": 7.5055,
+      "p_valor": 0.0,
+      "decision": "Se rechaza H0: se acepta H1"
+    },
+    {
+      "hipotesis": "H3",
+      "umbral_rf": "umbral 0.5",
+      "metrica": "f1",
+      "n_aulas": 35,
+      "media_rf": 0.5931,
+      "media_situacion_actual": 0.5704,
+      "diferencia_media": 0.0227,
+      "shapiro_w": 0.9539,
+      "shapiro_p": 0.149,
+      "normalidad": "normal",
+      "prueba": "t de Student para muestras relacionadas (unilateral)",
+      "estadistico": 0.3689,
+      "p_valor": 0.3572,
+      "decision": "No se rechaza H0"
+    }
+  ]
+}

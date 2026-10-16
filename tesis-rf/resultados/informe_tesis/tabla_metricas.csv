@@ -1,0 +1,11 @@
+﻿Métrica,Random Forest (umbral elegido),Random Forest (umbral 0.5),Situación actual: regla «alguna C en B1-B2»,Regresión logística,"IC 95% (RF, umbral elegido)"
+Sensibilidad,0.9947,0.7166,1.0,0.9947,[0.983 – 1.000]
+Precisión,0.4026,0.8024,0.3945,0.4106,[0.353 – 0.445]
+F1-Score,0.5732,0.7571,0.5658,0.5813,[0.522 – 0.615]
+Especificidad,0.8265,0.9793,0.8196,0.8322,
+F2,0.7686,0.7322,0.7651,0.7744,[0.731 – 0.798]
+Exactitud,0.8442,0.9516,0.8386,0.8493,
+Exactitud balanceada,0.9106,0.8479,0.9098,0.9134,
+MCC,0.5744,0.7317,0.5686,0.5821,[0.535 – 0.610]
+ROC-AUC,0.9773,0.9773,0.9098,0.9722,[0.971 – 0.983]
+PR-AUC,0.8326,0.8326,0.3945,0.8156,[0.778 – 0.877]
