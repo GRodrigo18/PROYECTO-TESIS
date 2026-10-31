@@ -2,7 +2,7 @@ import express from 'express';
 import { createServer as createViteServer } from 'vite';
 import fs from 'fs';
 import path from 'path';
-import { spawn } from 'child_process';
+import { spawn, type ChildProcessWithoutNullStreams } from 'child_process';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -47,24 +47,63 @@ function leerCsv(ruta: string): Record<string, string>[] {
   return cab ? resto.map(f => Object.fromEntries(cab.map((c, j) => [c, f[j] ?? '']))) : [];
 }
 
-function ejecutarPredecir(entrada: unknown): Promise<any> {
-  return new Promise((resolve, reject) => {
-    const p = spawn(PYTHON, [PREDECIR_PY, '--modelo', MODELO], { env: { ...process.env, PYTHONDONTWRITEBYTECODE: '1' } });
-    let out = '';
-    let err = '';
-    p.stdout.on('data', d => (out += d));
-    p.stderr.on('data', d => (err += d));
-    p.on('error', reject);
-    p.on('close', code => {
+// predecir.py --servidor queda abierto con el modelo cargado: importar pandas/scikit-learn y leer
+// el modelo en cada petición tardaba varios segundos. Responde una línea JSON por petición, en orden.
+let worker: ChildProcessWithoutNullStreams | null = null;
+let pendientes: { resolve: (v: any) => void; reject: (e: Error) => void; timer: NodeJS.Timeout }[] = [];
+let bufferSalida = '';
+let infoModelo: any = null;
+
+function cerrarPendientes(motivo: string) {
+  for (const p of pendientes) { clearTimeout(p.timer); p.reject(new Error(motivo)); }
+  pendientes = [];
+}
+
+function iniciarWorker() {
+  const p = spawn(PYTHON, [PREDECIR_PY, '--modelo', MODELO, '--servidor'], {
+    env: { ...process.env, PYTHONDONTWRITEBYTECODE: '1', PYTHONUNBUFFERED: '1' },
+  });
+  worker = p;
+  bufferSalida = '';
+  let err = '';
+  p.stdout.on('data', d => {
+    bufferSalida += d;
+    let i;
+    while ((i = bufferSalida.indexOf('\n')) >= 0) {
+      const linea = bufferSalida.slice(0, i).trim();
+      bufferSalida = bufferSalida.slice(i + 1);
+      if (!linea) continue;
+      const pend = pendientes.shift();
+      if (!pend) continue;
+      clearTimeout(pend.timer);
       try {
-        const json = JSON.parse(out);
-        if (code !== 0 || json.error) return reject(new Error(json.error || err || `predecir.py salió con código ${code}`));
-        resolve(json);
+        const json = JSON.parse(linea);
+        if (json.error) pend.reject(new Error(json.error));
+        else pend.resolve(json);
       } catch {
-        reject(new Error(err || 'Respuesta inválida de predecir.py'));
+        pend.reject(new Error('Respuesta inválida de predecir.py'));
       }
-    });
-    p.stdin.end(JSON.stringify(entrada));
+    }
+  });
+  p.stderr.on('data', d => { err = (err + d).slice(-2000); });
+  p.on('error', e => { if (worker === p) worker = null; cerrarPendientes(e.message); });
+  p.on('close', code => {
+    if (worker === p) worker = null;
+    cerrarPendientes(err.trim() || `predecir.py terminó con código ${code}`);
+  });
+}
+
+function ejecutarPredecir(entrada: unknown, timeoutMs = 120_000): Promise<any> {
+  if (!worker) iniciarWorker();
+  const w = worker!;
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => {
+      // Sin respuesta: se reinicia el proceso para no dejar la cola bloqueada.
+      w.kill();
+      reject(new Error('predecir.py no respondió a tiempo'));
+    }, timeoutMs);
+    pendientes.push({ resolve, reject, timer });
+    w.stdin.write(JSON.stringify(entrada) + '\n');
   });
 }
 
@@ -170,7 +209,8 @@ async function startServer() {
   app.get('/api/modelo', async (_req, res) => {
     if (!fs.existsSync(MODELO)) return res.status(404).json({ error: 'Aún no hay un modelo entrenado.' });
     try {
-      return res.json(await ejecutarPredecir({ info: true }));
+      infoModelo ??= await ejecutarPredecir({ info: true });
+      return res.json(infoModelo);
     } catch (err: any) {
       return res.status(500).json({ error: err.message });
     }
@@ -207,6 +247,12 @@ async function startServer() {
 
   app.listen(Number(PORT), '0.0.0.0', () => {
     console.log(`Servidor activo en http://0.0.0.0:${PORT}`);
+    // Precarga el modelo al arrancar, para que la primera predicción del simulador no espere.
+    if (fs.existsSync(MODELO)) {
+      ejecutarPredecir({ info: true })
+        .then(info => { infoModelo = info; console.log('Modelo cargado para el simulador'); })
+        .catch(e => console.error('No se pudo precargar el modelo:', e.message));
+    }
   });
 }
 

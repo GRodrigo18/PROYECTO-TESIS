@@ -5,6 +5,9 @@ Lo usa el simulador del dashboard (server.ts -> POST /api/predecir), pero tambi�
 sirve desde la terminal. Lee JSON por stdin y escribe JSON por stdout.
 
   echo '{"info": true}' | python src/predecir.py --modelo resultados/modelo_rf.joblib
+
+Con --servidor el proceso queda abierto: carga el modelo una vez y responde una línea JSON por
+cada línea JSON que recibe (así lo usa server.ts, para no recargar librerías en cada predicción).
   echo '{"registros": [{"grado": 3, "sede": "Central", "sexo": "Femenino",
           "notas": {"Matematica": {"B1": 12, "B2": "B"}, ...}}]}' | python src/predecir.py
 
@@ -66,22 +69,38 @@ def predecir(paquete: dict, registros: list[dict]) -> list[dict]:
     return salida
 
 
+def responder(paquete: dict, entrada: dict) -> dict:
+    if entrada.get("info"):
+        return {"cursos": paquete["cursos"], "sedes": paquete["sedes"], "umbral": round(float(paquete["umbral"]), 4),
+                "criterio_umbral": paquete.get("criterio_umbral"),
+                "total_arboles": len(paquete["modelo"].named_steps["rf"].estimators_)}
+    return {"umbral": round(float(paquete["umbral"]), 4), "resultados": predecir(paquete, entrada.get("registros", []))}
+
+
+def a_json(res: dict) -> str:
+    return json.dumps(res, ensure_ascii=False, default=lambda o: o.item() if hasattr(o, "item") else str(o))
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--modelo", type=Path, default=Path(__file__).resolve().parents[1] / "resultados" / "modelo_rf.joblib")
+    ap.add_argument("--servidor", action="store_true", help="queda abierto: una línea JSON de entrada, una de salida")
     a = ap.parse_args()
     if not a.modelo.exists():
         print(json.dumps({"error": f"No existe {a.modelo}. Ejecuta primero pipeline_rf_tesis.py."}, ensure_ascii=False))
         sys.exit(1)
     paquete = joblib.load(a.modelo)
-    entrada = json.load(sys.stdin)
-    if entrada.get("info"):
-        res = {"cursos": paquete["cursos"], "sedes": paquete["sedes"], "umbral": round(float(paquete["umbral"]), 4),
-               "criterio_umbral": paquete.get("criterio_umbral"),
-               "total_arboles": len(paquete["modelo"].named_steps["rf"].estimators_)}
-    else:
-        res = {"umbral": round(float(paquete["umbral"]), 4), "resultados": predecir(paquete, entrada.get("registros", []))}
-    print(json.dumps(res, ensure_ascii=False, default=lambda o: o.item() if hasattr(o, "item") else str(o)))
+    if not a.servidor:
+        print(a_json(responder(paquete, json.load(sys.stdin))))
+        return
+    for linea in sys.stdin:
+        if not linea.strip():
+            continue
+        try:
+            res = responder(paquete, json.loads(linea))
+        except Exception as e:  # un error en una petición no tumba el proceso
+            res = {"error": f"{type(e).__name__}: {e}"}
+        print(a_json(res), flush=True)
 
 
 if __name__ == "__main__":
