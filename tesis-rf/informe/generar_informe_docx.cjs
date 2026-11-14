@@ -204,17 +204,17 @@ c.push(p(`La importancia por permutación mide cuánto empeora la PR-AUC en ${pa
 // 6. Contraste de hipótesis
 c.push(h1("6. Contrastación de hipótesis"));
 c.push(p([`Cada hipótesis compara el modelo con la situación actual (alerta por alguna nota C en B1-B2). La unidad de análisis es el aula (sección) de la cohorte ${part.prueba} (${T.n_aulas_prueba} aulas). En cada aula se calculó la métrica con ambos métodos; la normalidad de las diferencias pareadas se evaluó con Shapiro-Wilk y, según su resultado, se aplicó la prueba t de Student para muestras relacionadas o la de Wilcoxon de rangos con signo, ambas unilaterales (H1: el modelo supera a la situación actual), con α = 0,05. La sensibilidad se calcula solo en aulas con al menos un estudiante en riesgo, y la precisión solo en aulas con al menos una alerta de cada método.`]));
-const filaHip = (h) => [h.hipotesis, NOMBRE_MET[h.metrica], String(h.n_aulas),
+const filaHip = (h) => [h.hipotesis, NOMBRE_MET[h.metrica], String(h.n_aulas), num(h.media_rf), num(h.media_situacion_actual),
   h.shapiro_p === null ? "—" : `W = ${num(h.shapiro_w)}; p = ${num(h.shapiro_p)} (${h.normalidad})`,
   h.prueba.replace(" (unilateral)", ""), h.p_valor === null ? "—" : num(h.p_valor, 4), h.decision];
 c.push(titulo("Tabla", `Contrastación de hipótesis (umbral elegido ${num(opt.umbral)}).`));
-c.push(tabla(["Hipótesis", "Métrica evaluada", "Aulas", "Normalidad (Shapiro-Wilk)", "Prueba de contraste", "P-valor", "Decisión final"],
-  hipPrim.map(filaHip), [11, 13, 8, 19, 19, 9, 21]));
+c.push(tabla(["Hipótesis", "Métrica evaluada", "Aulas", "Media RF", "Media situación actual", "Normalidad (Shapiro-Wilk)", "Prueba de contraste", "P-valor", "Decisión final"],
+  hipPrim.map(filaHip), [9, 11, 7, 8, 10, 17, 15, 8, 15]));
 c.push(fuente());
 c.push(titulo("Tabla", "Análisis complementario con umbral 0,5."));
-c.push(tabla(["Hipótesis", "Métrica evaluada", "Aulas", "Normalidad (Shapiro-Wilk)", "Prueba de contraste", "P-valor", "Decisión final"],
-  hipSec.map(filaHip), [11, 13, 8, 19, 19, 9, 21]));
-c.push(fuente());
+c.push(tabla(["Hipótesis", "Métrica evaluada", "Aulas", "Media RF", "Media situación actual", "Normalidad (Shapiro-Wilk)", "Prueba de contraste", "P-valor", "Decisión final"],
+  hipSec.map(filaHip), [9, 11, 7, 8, 10, 17, 15, 8, 15]));
+c.push(fuente("Fuente: Elaborado por los autores. Las medias se calculan sobre las mismas aulas del contraste pareado (columna Aulas): solo entran las aulas donde la métrica existe con ambos métodos. Con el umbral 0,5 el modelo no emite alertas en muchas aulas, su precisión no se puede calcular allí y esas aulas salen del contraste; por eso la media de la situación actual difiere de la tabla anterior aunque la regla sea la misma. Detalle por aula: metricas_por_aula_prueba_umbral_05.csv."));
 const t = mcn.RF_vs_regla_B1B2, l = mcn.RF_vs_logistica;
 c.push(p([`A nivel de estudiante, la prueba de McNemar comparó los aciertos del modelo y de la situación actual: el modelo acertó en ${t.a_acierta_b_falla} casos donde la regla falló y la regla en ${t.b_acierta_a_falla} donde el modelo falló (χ² = ${num(t.chi2)}; p = ${num(t.p_valor, 4)}). Frente a la regresión logística, la diferencia fue ${l.a_acierta_b_falla} contra ${l.b_acierta_a_falla} (p = ${num(l.p_valor, 4)}).`]));
 c.push(h2("6.1 Interpretación"));

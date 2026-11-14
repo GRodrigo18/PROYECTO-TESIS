@@ -1,14 +1,16 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { Suspense, lazy, useCallback, useEffect, useState } from 'react';
 import { Check, Database, Sliders, BarChart3, Bell, Cpu } from 'lucide-react';
 import { Navbar } from './components/Navbar';
 import { Paso1CargaSection } from './components/Paso1CargaSection';
-import { Paso2ValidacionSection } from './components/Paso2ValidacionSection';
-import { Paso3ModeloSection } from './components/Paso3ModeloSection';
-import { Paso4PrediccionesSection } from './components/Paso4PrediccionesSection';
-import { Paso5SimuladorSection } from './components/Paso5SimuladorSection';
 import { ProjectPhase, ResultadoAuditoria, ResultadosPipeline } from './types';
-import { auditarArchivo } from './utils/validacion';
+import { borrarLocal, guardarLocal, leerLocal } from './utils/guardadoLocal';
 import { pct, num } from './components/ui';
+
+// Los pasos 2-5 (gráficos) y el lector de Excel se cargan cuando se usan: la primera carga pesa menos.
+const Paso2ValidacionSection = lazy(() => import('./components/Paso2ValidacionSection').then(m => ({ default: m.Paso2ValidacionSection })));
+const Paso3ModeloSection = lazy(() => import('./components/Paso3ModeloSection').then(m => ({ default: m.Paso3ModeloSection })));
+const Paso4PrediccionesSection = lazy(() => import('./components/Paso4PrediccionesSection').then(m => ({ default: m.Paso4PrediccionesSection })));
+const Paso5SimuladorSection = lazy(() => import('./components/Paso5SimuladorSection').then(m => ({ default: m.Paso5SimuladorSection })));
 
 const PASOS: Array<{ id: ProjectPhase; label: string; icon: React.FC<{ className?: string }>; requiereDatos: boolean }> = [
   { id: 'paso1_carga', label: '1. Carga', icon: Database, requiereDatos: false },
@@ -26,68 +28,97 @@ export default function App() {
   const [isSaving, setIsSaving] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [lastSavedAt, setLastSavedAt] = useState<string | null>(null);
+  const [persistente, setPersistente] = useState<boolean | null>(null);
 
   const showToast = useCallback((msg: string) => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 4500);
   }, []);
 
+  // Guarda en el servidor (lo ve cualquier navegador) y deja una copia en este navegador.
+  const guardar = useCallback(async (a: ResultadoAuditoria, silencioso = false): Promise<boolean> => {
+    setIsSaving(true);
+    try {
+      const resp = await fetch('/api/dataset', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ auditoria: a }),
+      });
+      const data = await resp.json().catch(() => ({}));
+      if (!resp.ok) throw new Error(data.error || 'Error al guardar en el servidor');
+      setIsSaved(true);
+      setLastSavedAt(data.savedAt);
+      if (typeof data.persistente === 'boolean') setPersistente(data.persistente);
+      await guardarLocal({ auditoria: a, savedAt: data.savedAt });
+      if (!silencioso) showToast('Validación guardada en el servidor y en este navegador.');
+      return true;
+    } catch (err: any) {
+      // Sin servidor queda al menos la copia del navegador
+      const savedAt = new Date().toISOString();
+      await guardarLocal({ auditoria: a, savedAt });
+      setIsSaved(false);
+      showToast(`${err.message}. Quedó una copia en este navegador.`);
+      return false;
+    } finally {
+      setIsSaving(false);
+    }
+  }, [showToast]);
+
   useEffect(() => {
-    // Validación guardada en el servidor (si alguien la guardó antes)
-    fetch('/api/dataset')
-      .then(r => (r.ok ? r.json() : null))
-      .then(d => {
-        if (d?.hasData && d.auditoria) {
-          setAuditoria(d.auditoria);
-          setIsSaved(true);
-          setLastSavedAt(d.savedAt);
-        }
-      })
-      .catch(() => {});
+    // Validación guardada: la del servidor, o la copia de este navegador si es más reciente
+    // (o si el servidor la perdió al reiniciarse); en ese caso se vuelve a subir.
+    (async () => {
+      const [srv, local] = await Promise.all([
+        fetch('/api/dataset').then(r => (r.ok ? r.json() : null)).catch(() => null),
+        leerLocal(),
+      ]);
+      if (typeof srv?.persistente === 'boolean') setPersistente(srv.persistente);
+      const srvAt = srv?.hasData ? Date.parse(srv.savedAt || '') || 0 : -1;
+      const localAt = local ? Date.parse(local.savedAt) || 0 : -1;
+      if (srvAt >= 0 && srvAt >= localAt) {
+        setAuditoria(srv.auditoria);
+        setIsSaved(true);
+        setLastSavedAt(srv.savedAt);
+        if (localAt < srvAt) guardarLocal({ auditoria: srv.auditoria, savedAt: srv.savedAt });
+      } else if (local) {
+        setAuditoria(local.auditoria);
+        setLastSavedAt(local.savedAt);
+        showToast('Se recuperó la última validación guardada en este navegador.');
+        if (srv) guardar(local.auditoria, true);
+      }
+    })();
     // Resultados reales del pipeline Python
     fetch('/api/resultados')
       .then(r => (r.ok ? r.json() : null))
       .then(d => d && setResultados(d))
       .catch(() => {});
-  }, []);
+  }, [guardar, showToast]);
 
   const handleFileUpload = async (file: File) => {
     try {
+      const { auditarArchivo } = await import('./utils/validacion');
       const res = await auditarArchivo(file);
       setAuditoria(res);
       setIsSaved(false);
       setLastSavedAt(null);
-      showToast(`«${file.name}»: ${res.perfil.total_validos} válidos, ${res.perfil.total_excluidos} excluidos.`);
+      // Se guarda al momento: antes había que pulsar «Guardar» y, si no, se perdía al recargar.
+      const resumen = `«${file.name}»: ${res.perfil.total_validos} válidos, ${res.perfil.total_excluidos} excluidos.`;
+      showToast(`${resumen} Guardando…`);
+      if (await guardar(res, true)) showToast(`${resumen} Guardado.`);
     } catch (err: any) {
       showToast(err.message || 'No se pudo leer el archivo.');
     }
   };
 
   const handleSaveData = async () => {
-    if (!auditoria) return;
-    try {
-      setIsSaving(true);
-      const resp = await fetch('/api/dataset', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ auditoria }),
-      });
-      const data = await resp.json();
-      if (!resp.ok) throw new Error(data.error || 'Error al guardar en el servidor');
-      setIsSaved(true);
-      setLastSavedAt(data.savedAt);
-      showToast('Validación guardada en el servidor.');
-    } catch (err: any) {
-      showToast(err.message);
-    } finally {
-      setIsSaving(false);
-    }
+    if (auditoria) await guardar(auditoria);
   };
 
   const handleClear = async () => {
     try {
       await fetch('/api/dataset', { method: 'DELETE' });
     } catch {}
+    await borrarLocal();
     setAuditoria(null);
     setIsSaved(false);
     setLastSavedAt(null);
@@ -109,6 +140,15 @@ export default function App() {
         isSaved={isSaved}
         lastSavedAt={lastSavedAt}
       />
+
+      {auditoria && persistente === false && (
+        <div className="bg-amber-50 dark:bg-amber-950/40 border-b border-amber-200 dark:border-amber-900 text-amber-800 dark:text-amber-200 text-xs">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
+            El servidor guarda la validación en un disco temporal: si se reinicia o se duerme por inactividad, se borra.
+            Queda una copia en este navegador y se vuelve a subir sola. Para que dure en el servidor, configure <code>DATABASE_URL</code>.
+          </div>
+        </div>
+      )}
 
       {toastMessage && (
         <div className="fixed bottom-5 right-5 z-50 bg-slate-900 text-white px-4 py-2.5 rounded-xl shadow-xl border border-slate-700 flex items-center gap-2.5 text-xs max-w-md">
@@ -139,6 +179,7 @@ export default function App() {
           )}
         </div>
 
+        <Suspense fallback={<div className="text-xs text-slate-500 p-6">Cargando…</div>}>
         {currentPhase === 'paso1_carga' && (
           <Paso1CargaSection auditoria={auditoria} onFileUpload={handleFileUpload} onNextStep={() => setCurrentPhase('paso2_validacion')} />
         )}
@@ -157,6 +198,7 @@ export default function App() {
         {currentPhase === 'paso5_simulador' && (
           <Paso5SimuladorSection modeloDisponible={Boolean(resultados?.modelo_disponible)} onPrevStep={() => setCurrentPhase('paso4_predicciones')} />
         )}
+        </Suspense>
       </main>
 
       <footer className="mt-auto border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 py-4 text-xs text-slate-500">

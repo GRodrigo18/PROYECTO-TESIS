@@ -32,3 +32,17 @@ El simulador (Paso 5) necesita Python en el servidor (`PYTHON=python3` por defec
 
 Los Excel de `tesis-rf/data/` y las salidas fila por fila de `tesis-rf/salida/` están en
 `.gitignore` porque contienen datos de estudiantes.
+
+## Que el Excel no se borre en Render
+
+El plan gratuito de Render no tiene disco persistente: lo que el servidor escribe se pierde cuando
+el servicio se duerme (~15 min sin visitas), se reinicia o se redespliega. Para que la validación
+guardada sobreviva:
+
+1. Cree una base PostgreSQL gratuita en [Neon](https://neon.tech) o [Supabase](https://supabase.com)
+   y copie su cadena de conexión (`postgresql://...?sslmode=require`).
+2. En Render > el servicio > Environment, agregue `DATABASE_URL` con esa cadena y guarde.
+
+La tabla `validacion_guardada` se crea sola. Sin `DATABASE_URL` la app sigue funcionando: guarda
+en el navegador (IndexedDB) y vuelve a subir la validación al servidor cuando este la perdió, pero
+la copia solo existe en el navegador donde se subió el Excel.

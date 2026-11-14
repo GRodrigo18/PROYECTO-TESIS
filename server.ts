@@ -1,9 +1,11 @@
 import express from 'express';
+import compression from 'compression';
 import { createServer as createViteServer } from 'vite';
 import fs from 'fs';
 import path from 'path';
 import { spawn } from 'child_process';
 import { fileURLToPath } from 'url';
+import { crearAlmacenamiento } from './almacenamiento';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -47,92 +49,123 @@ function leerCsv(ruta: string): Record<string, string>[] {
   return cab ? resto.map(f => Object.fromEntries(cab.map((c, j) => [c, f[j] ?? '']))) : [];
 }
 
+/**
+ * predecir.py queda abierto (--servidor) con el modelo cargado: una línea JSON por petición.
+ * Así cada predicción del simulador tarda milisegundos en vez de volver a cargar Python y el modelo.
+ * Si el proceso muere, se vuelve a lanzar en la siguiente petición.
+ */
+let trabajador: ReturnType<typeof spawn> | null = null;
+let pendientes: Array<{ resolve: (v: any) => void; reject: (e: Error) => void }> = [];
+let bufferSalida = '';
+let ultimoError = '';
+
+function iniciarTrabajador() {
+  const p = spawn(PYTHON, [PREDECIR_PY, '--modelo', MODELO, '--servidor'], {
+    env: { ...process.env, PYTHONDONTWRITEBYTECODE: '1' },
+  });
+  bufferSalida = '';
+  ultimoError = '';
+  p.stdout!.setEncoding('utf-8');
+  p.stdout!.on('data', (d: string) => {
+    bufferSalida += d;
+    let i;
+    while ((i = bufferSalida.indexOf('\n')) >= 0) {
+      const linea = bufferSalida.slice(0, i);
+      bufferSalida = bufferSalida.slice(i + 1);
+      const pend = pendientes.shift();
+      if (!pend) continue;
+      try {
+        const json = JSON.parse(linea);
+        json.error ? pend.reject(new Error(json.error)) : pend.resolve(json);
+      } catch {
+        pend.reject(new Error('Respuesta inválida de predecir.py'));
+      }
+    }
+  });
+  p.stderr!.on('data', d => (ultimoError = (ultimoError + d).slice(-2000)));
+  const caer = (motivo: string) => {
+    if (trabajador === p) trabajador = null;
+    const err = new Error(ultimoError.trim() || motivo);
+    pendientes.splice(0).forEach(x => x.reject(err));
+  };
+  p.on('error', e => caer(e.message));
+  p.on('close', code => caer(`predecir.py terminó con código ${code}`));
+  trabajador = p;
+}
+
 function ejecutarPredecir(entrada: unknown): Promise<any> {
   return new Promise((resolve, reject) => {
-    const p = spawn(PYTHON, [PREDECIR_PY, '--modelo', MODELO], { env: { ...process.env, PYTHONDONTWRITEBYTECODE: '1' } });
-    let out = '';
-    let err = '';
-    p.stdout.on('data', d => (out += d));
-    p.stderr.on('data', d => (err += d));
-    p.on('error', reject);
-    p.on('close', code => {
-      try {
-        const json = JSON.parse(out);
-        if (code !== 0 || json.error) return reject(new Error(json.error || err || `predecir.py salió con código ${code}`));
-        resolve(json);
-      } catch {
-        reject(new Error(err || 'Respuesta inválida de predecir.py'));
-      }
-    });
-    p.stdin.end(JSON.stringify(entrada));
+    if (!trabajador) iniciarTrabajador();
+    pendientes.push({ resolve, reject });
+    trabajador!.stdin!.write(JSON.stringify(entrada) + '\n');
   });
 }
+
+// La información del modelo no cambia mientras el servidor corre.
+let infoModelo: Promise<any> | null = null;
 
 async function startServer() {
   const app = express();
   const PORT = process.env.PORT || 3000;
 
+  // Respuestas comprimidas (la validación guardada pesa varios MB en JSON)
+  app.use(compression());
   // Permitir payloads grandes para datasets completos
   app.use(express.json({ limit: '50mb' }));
   app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
-  const dataDir = path.resolve(__dirname, 'data');
-  if (!fs.existsSync(dataDir)) {
-    fs.mkdirSync(dataDir, { recursive: true });
-  }
-  const dataFilePath = path.join(dataDir, 'saved_dataset.json');
+  // Validación guardada: PostgreSQL si hay DATABASE_URL; si no, archivo en DATA_DIR (ver almacenamiento.ts)
+  const almacen = await crearAlmacenamiento(__dirname);
+  console.log(`Validación guardada en: ${almacen.descripcion}`);
+  const estado = () => ({ almacenamiento: almacen.tipo, persistente: almacen.persistente });
 
-  // GET: Obtener dataset guardado en el servidor para cualquier navegador
-  app.get('/api/dataset', (_req, res) => {
+  // GET: validación guardada en el servidor (la ve cualquier navegador)
+  app.get('/api/dataset', async (_req, res) => {
     try {
-      if (fs.existsSync(dataFilePath)) {
-        const fileContent = fs.readFileSync(dataFilePath, 'utf-8');
-        const parsed = JSON.parse(fileContent);
-        return res.json({
-          success: true,
-          hasData: Boolean(parsed.auditoria),
-          auditoria: parsed.auditoria || null,
-          savedAt: parsed.savedAt || null,
-        });
-      }
-      return res.json({ success: true, hasData: false, auditoria: null, savedAt: null });
+      const g = (await almacen.leer()) as { auditoria?: any; savedAt?: string } | null;
+      return res.json({
+        success: true,
+        hasData: Boolean(g?.auditoria),
+        auditoria: g?.auditoria || null,
+        savedAt: g?.savedAt || null,
+        ...estado(),
+      });
     } catch (err: any) {
-      console.error('Error al leer dataset del servidor:', err);
-      return res.status(500).json({ error: 'Error al leer el dataset guardado' });
+      console.error('Error al leer la validación guardada:', err);
+      return res.status(500).json({ error: 'Error al leer la validación guardada', ...estado() });
     }
   });
 
-  // POST: Guardar información persistente en el servidor
-  app.post('/api/dataset', (req, res) => {
+  // POST: guardar la validación
+  app.post('/api/dataset', async (req, res) => {
     try {
       const { auditoria } = req.body;
       if (!auditoria || !auditoria.perfil || !Array.isArray(auditoria.validos)) {
         return res.status(400).json({ error: 'Falta el resultado de la validación' });
       }
-      const payload = { auditoria, savedAt: new Date().toISOString() };
-      fs.writeFileSync(dataFilePath, JSON.stringify(payload, null, 2), 'utf-8');
+      const savedAt = new Date().toISOString();
+      await almacen.guardar({ auditoria, savedAt });
       return res.json({
         success: true,
-        message: 'Información guardada exitosamente en el servidor.',
-        savedAt: payload.savedAt,
+        message: 'Validación guardada en el servidor.',
+        savedAt,
         totalRecords: auditoria.validos.length,
+        ...estado(),
       });
     } catch (err: any) {
-      console.error('Error al guardar dataset en el servidor:', err);
-      return res.status(500).json({ error: 'Error al persistir el dataset' });
+      console.error('Error al guardar la validación:', err);
+      return res.status(500).json({ error: 'Error al guardar la validación en el servidor' });
     }
   });
 
-  // DELETE: Reiniciar dataset del servidor
-  app.delete('/api/dataset', (_req, res) => {
+  // DELETE: borrar la validación guardada
+  app.delete('/api/dataset', async (_req, res) => {
     try {
-      if (fs.existsSync(dataFilePath)) {
-        fs.unlinkSync(dataFilePath);
-      }
-      return res.json({ success: true, message: 'Datos eliminados del servidor correctamente.' });
+      await almacen.borrar();
+      return res.json({ success: true, message: 'Validación eliminada del servidor.' });
     } catch (err: any) {
-      console.error('Error al reiniciar dataset:', err);
-      return res.status(500).json({ error: 'Error al limpiar dataset' });
+      console.error('Error al borrar la validación:', err);
+      return res.status(500).json({ error: 'Error al borrar la validación' });
     }
   });
 
@@ -170,8 +203,10 @@ async function startServer() {
   app.get('/api/modelo', async (_req, res) => {
     if (!fs.existsSync(MODELO)) return res.status(404).json({ error: 'Aún no hay un modelo entrenado.' });
     try {
-      return res.json(await ejecutarPredecir({ info: true }));
+      infoModelo ??= ejecutarPredecir({ info: true });
+      return res.json(await infoModelo);
     } catch (err: any) {
+      infoModelo = null;
       return res.status(500).json({ error: err.message });
     }
   });
@@ -188,7 +223,7 @@ async function startServer() {
 
   // Health endpoint
   app.get('/api/health', (_req, res) => {
-    res.json({ status: 'ok', timestamp: new Date().toISOString() });
+    res.json({ status: 'ok', timestamp: new Date().toISOString(), ...estado() });
   });
 
   const isProd = process.env.NODE_ENV === 'production';

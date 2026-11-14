@@ -289,8 +289,12 @@ def main():
         pares = pd.DataFrame(pares)
         for h, met in (("H1", "sensibilidad"), ("H2", "precision"), ("H3", "f1")):
             hip.append({"hipotesis": h, "umbral_rf": umbral_txt, **contraste(pares, met)})
-        if col == "pred_rf":
-            pares.to_csv(out / "metricas_por_aula_prueba.csv", index=False, encoding="utf-8-sig")
+            # Un aula entra al contraste pareado solo si la métrica existe con ambos métodos. Por eso la
+            # media de la situación actual cambia entre umbrales: la regla es la misma, las aulas no.
+            pares[f"entra_contraste_{met}"] = pares[[f"{met}_rf", f"{met}_regla"]].notna().all(axis=1)
+        # Archivo del cálculo por aula de cada umbral (agregado por aula: sin datos de alumnos)
+        nombre = "metricas_por_aula_prueba.csv" if col == "pred_rf" else "metricas_por_aula_prueba_umbral_05.csv"
+        pares.to_csv(out / nombre, index=False, encoding="utf-8-sig")
     t_hip = pd.DataFrame(hip)
     t_hip.to_csv(out / "tabla_contraste_hipotesis.csv", index=False, encoding="utf-8-sig")
 
