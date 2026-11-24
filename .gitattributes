@@ -1,0 +1,3 @@
+# Se guarda con CRLF tal cual (cmd.exe falla con saltos LF en algunos goto)
+*.bat -text
+*.sh text eol=lf
