@@ -61,7 +61,9 @@ let ultimoError = '';
 
 function iniciarTrabajador() {
   const p = spawn(PYTHON, [PREDECIR_PY, '--modelo', MODELO, '--servidor'], {
-    env: { ...process.env, PYTHONDONTWRITEBYTECODE: '1' },
+    // UTF-8 explícito: en Windows Python usa cp1252 para stdin/stdout y "La Ascensión" llega
+    // deformada (sede_invalida en el simulador). En Linux (Render) no cambia nada.
+    env: { ...process.env, PYTHONDONTWRITEBYTECODE: '1', PYTHONIOENCODING: 'utf-8', PYTHONUTF8: '1' },
   });
   bufferSalida = '';
   ultimoError = '';

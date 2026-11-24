@@ -20,3 +20,6 @@ tesis-rf/resultados/registros_excluidos.csv
 tesis-rf/resultados/predicciones_2026.csv
 
 tesis-rf/resultados/predicciones_prueba.csv
+
+# Entorno de Python del plan B local (iniciar_demo.bat / iniciar_demo.sh)
+tesis-rf/.venv/

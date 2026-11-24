@@ -9,6 +9,11 @@ Proyecto de tesis. Hay dos partes:
 
 Las reglas metodológicas y la auditoría que motivó estos cambios están en [`CLAUDE.md`](CLAUDE.md).
 
+## Plan B: correrlo en tu computadora
+
+Si el despliegue no responde, doble clic en `iniciar_demo.bat` (Windows) o `./iniciar_demo.sh`
+(Mac/Linux). Guía paso a paso: [`PLAN_B_DEMO.md`](PLAN_B_DEMO.md).
+
 ## Uso
 
 ```bash
