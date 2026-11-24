@@ -11,7 +11,9 @@ interface Props {
 }
 
 export const Paso4PrediccionesSection: React.FC<Props> = ({ resultados, onPrevStep, onNextStep }) => {
-  const preds = resultados?.predicciones_2026 ?? [];
+  // Se ordena aquí aunque el CSV ya venga ordenado: el texto de la tabla lo promete.
+  const preds = useMemo(() => [...(resultados?.predicciones_2026 ?? [])]
+    .sort((a, b) => b.probabilidad_riesgo - a.probabilidad_riesgo), [resultados]);
   const [sede, setSede] = useState('Todas');
   const [soloAlertas, setSoloAlertas] = useState(false);
   const [busqueda, setBusqueda] = useState('');

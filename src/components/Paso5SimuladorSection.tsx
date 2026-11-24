@@ -20,6 +20,17 @@ export const Paso5SimuladorSection: React.FC<Props> = ({ modeloDisponible, onPre
   const [resultado, setResultado] = useState<ResultadoPrediccion | null>(null);
   const [cargando, setCargando] = useState(false);
 
+  // Un resultado anterior no debe quedar en pantalla junto a datos que ya cambiaron.
+  useEffect(() => { setResultado(null); }, [grado, sede, sexo, notas]);
+
+  const limpiar = () => {
+    if (!info) return;
+    setGrado('1');
+    setSexo('No registrado');
+    setNotas(Object.fromEntries(info.cursos.map(c => [c, { B1: '', B2: '' }])));
+    setError(null);
+  };
+
   useEffect(() => {
     if (!modeloDisponible) return;
     let cancelado = false; // una respuesta tardía no debe borrar las notas ya ingresadas
@@ -82,7 +93,9 @@ export const Paso5SimuladorSection: React.FC<Props> = ({ modeloDisponible, onPre
           <Card title="Datos del estudiante" className="lg:col-span-2">
             <div className="flex flex-wrap gap-3 mb-4 text-xs">
               <label className="flex flex-col gap-1">Grado
-                <input type="number" min={1} max={6} value={grado} onChange={e => setGrado(e.target.value)} className={`${selectCls} w-20`} />
+                <select value={grado} onChange={e => setGrado(e.target.value)} className={`${selectCls} w-20`}>
+                  {['1', '2', '3', '4', '5'].map(g => <option key={g} value={g}>{g}.º</option>)}
+                </select>
               </label>
               <label className="flex flex-col gap-1">Sede
                 <select value={sede} onChange={e => setSede(e.target.value)} className={selectCls}>
@@ -113,10 +126,17 @@ export const Paso5SimuladorSection: React.FC<Props> = ({ modeloDisponible, onPre
                 ))}
               </tbody>
             </table>
-            <button onClick={predecir} disabled={cargando}
-              className="mt-4 px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs cursor-pointer disabled:opacity-50 flex items-center gap-1.5">
-              {cargando && <RefreshCw className="w-3.5 h-3.5 animate-spin" />}Predecir
-            </button>
+            <div className="mt-4 flex flex-wrap items-center gap-2">
+              <button onClick={predecir} disabled={cargando}
+                className="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs cursor-pointer disabled:opacity-50 flex items-center gap-1.5">
+                {cargando && <RefreshCw className="w-3.5 h-3.5 animate-spin" />}{cargando ? 'Prediciendo…' : 'Predecir'}
+              </button>
+              <button onClick={limpiar} disabled={cargando}
+                className="px-4 py-2 rounded-xl text-xs font-semibold border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer disabled:opacity-50">
+                Limpiar
+              </button>
+              <span className="text-[11px] text-slate-400">Notas en letras (AD/A/B/C) o en número (0-20). Se necesitan B1 y B2 de los {info.cursos.length} cursos.</span>
+            </div>
           </Card>
 
           <div className="space-y-4">

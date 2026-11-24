@@ -29,14 +29,18 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from pipeline_rf_tesis import BIMESTRES_TEMPRANOS, construir_variables, estandarizar_nota  # noqa: E402
 
 
+GRADOS_VALIDOS = {1, 2, 3, 4, 5}
+
+
 def predecir(paquete: dict, registros: list[dict]) -> list[dict]:
     modelo, umbral, cursos = paquete["modelo"], paquete["umbral"], paquete["cursos"]
     salida, filas, idx_validos = [], [], []
     for i, r in enumerate(registros):
         fila, errores = {"grado": pd.to_numeric(r.get("grado"), errors="coerce"),
                          "sede": r.get("sede"), "sexo": r.get("sexo") or "No registrado"}, []
-        if pd.isna(fila["grado"]):
-            errores.append("grado_invalido")
+        # Solo secundaria (1.º a 5.º): fuera de ese rango el modelo no tiene datos con qué decidir
+        if pd.isna(fila["grado"]) or fila["grado"] not in GRADOS_VALIDOS:
+            errores.append("grado_invalido(1-5)")
         if fila["sede"] not in paquete["sedes"]:
             errores.append("sede_invalida")
         notas = r.get("notas") or {}

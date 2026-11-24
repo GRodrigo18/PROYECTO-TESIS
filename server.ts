@@ -88,16 +88,30 @@ function iniciarTrabajador() {
     const err = new Error(ultimoError.trim() || motivo);
     pendientes.splice(0).forEach(x => x.reject(err));
   };
+  // Escribir a un proceso que acaba de morir no debe tumbar el servidor (EPIPE); 'close' ya avisa.
+  p.stdin!.on('error', () => {});
   p.on('error', e => caer(e.message));
   p.on('close', code => caer(`predecir.py terminó con código ${code}`));
   trabajador = p;
 }
 
+const TIEMPO_MAX_PREDICCION_MS = 60_000;
+
 function ejecutarPredecir(entrada: unknown): Promise<any> {
   return new Promise((resolve, reject) => {
     if (!trabajador) iniciarTrabajador();
-    pendientes.push({ resolve, reject });
-    trabajador!.stdin!.write(JSON.stringify(entrada) + '\n');
+    const p = trabajador!;
+    // Si Python se cuelga, el simulador muestra un error en vez de quedarse cargando para siempre:
+    // se detiene el proceso (rechaza las peticiones pendientes) y la siguiente lo vuelve a lanzar.
+    const reloj = setTimeout(() => {
+      ultimoError = 'predecir.py no respondió a tiempo; vuelva a intentar.';
+      p.kill();
+    }, TIEMPO_MAX_PREDICCION_MS);
+    pendientes.push({
+      resolve: v => { clearTimeout(reloj); resolve(v); },
+      reject: e => { clearTimeout(reloj); reject(e); },
+    });
+    p.stdin!.write(JSON.stringify(entrada) + '\n');
   });
 }
 
@@ -175,10 +189,12 @@ async function startServer() {
       const rutaInforme = path.join(RESULTADOS_DIR, 'informe_metricas.json');
       const hayInforme = fs.existsSync(rutaInforme);
       const num = (v: string) => (v === '' ? NaN : Number(v));
+      const informe = hayInforme ? JSON.parse(fs.readFileSync(rutaInforme, 'utf-8')) : null;
       return res.json({
         disponible: hayInforme,
-        generado_en: hayInforme ? fs.statSync(rutaInforme).mtime.toISOString() : null,
-        informe: hayInforme ? JSON.parse(fs.readFileSync(rutaInforme, 'utf-8')) : null,
+        // Fecha que escribe el pipeline. No se usa la fecha del archivo: en el despliegue es la de la copia, no la del entrenamiento.
+        generado_en: informe?.generado_en ?? null,
+        informe,
         predicciones_2026: leerCsv(PREDICCIONES_2026).map(r => ({
           ...r,
           probabilidad_riesgo: num(r.probabilidad_riesgo),
@@ -222,8 +238,16 @@ async function startServer() {
   });
 
   // Health endpoint
+  // Sirve para revisar el despliegue antes de una presentación: todo debe salir en true / > 0.
   app.get('/api/health', (_req, res) => {
-    res.json({ status: 'ok', timestamp: new Date().toISOString(), ...estado() });
+    res.json({
+      status: 'ok',
+      timestamp: new Date().toISOString(),
+      ...estado(),
+      informe_metricas: fs.existsSync(path.join(RESULTADOS_DIR, 'informe_metricas.json')),
+      modelo: fs.existsSync(MODELO),
+      predicciones_2026: leerCsv(PREDICCIONES_2026).length,
+    });
   });
 
   const isProd = process.env.NODE_ENV === 'production';
@@ -242,6 +266,14 @@ async function startServer() {
 
   app.listen(Number(PORT), '0.0.0.0', () => {
     console.log(`Servidor activo en http://0.0.0.0:${PORT}`);
+    // Carga el modelo en segundo plano al arrancar: la primera predicción del simulador ya no espera a Python.
+    if (fs.existsSync(MODELO)) {
+      infoModelo = ejecutarPredecir({ info: true });
+      infoModelo.catch(err => {
+        infoModelo = null;
+        console.error('No se pudo cargar el modelo al arrancar:', err.message);
+      });
+    }
   });
 }
 

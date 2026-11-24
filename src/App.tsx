@@ -1,5 +1,5 @@
-import React, { Suspense, lazy, useCallback, useEffect, useState } from 'react';
-import { Check, Database, Sliders, BarChart3, Bell, Cpu } from 'lucide-react';
+import React, { Suspense, lazy, useCallback, useEffect, useRef, useState } from 'react';
+import { AlertTriangle, Check, Database, Sliders, BarChart3, Bell, Cpu } from 'lucide-react';
 import { Navbar } from './components/Navbar';
 import { Paso1CargaSection } from './components/Paso1CargaSection';
 import { ProjectPhase, ResultadoAuditoria, ResultadosPipeline } from './types';
@@ -24,15 +24,18 @@ export default function App() {
   const [auditoria, setAuditoria] = useState<ResultadoAuditoria | null>(null);
   const [resultados, setResultados] = useState<ResultadosPipeline | null>(null);
   const [currentPhase, setCurrentPhase] = useState<ProjectPhase>('paso1_carga');
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [toastMessage, setToastMessage] = useState<{ texto: string; error: boolean } | null>(null);
+  const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [lastSavedAt, setLastSavedAt] = useState<string | null>(null);
   const [persistente, setPersistente] = useState<boolean | null>(null);
 
-  const showToast = useCallback((msg: string) => {
-    setToastMessage(msg);
-    setTimeout(() => setToastMessage(null), 4500);
+  // Cada aviso reinicia el temporizador: uno anterior ya no borra antes de tiempo al siguiente.
+  const showToast = useCallback((msg: string, error = false) => {
+    if (toastTimer.current) clearTimeout(toastTimer.current);
+    setToastMessage({ texto: msg, error });
+    toastTimer.current = setTimeout(() => setToastMessage(null), error ? 8000 : 4500);
   }, []);
 
   // Guarda en el servidor (lo ve cualquier navegador) y deja una copia en este navegador.
@@ -57,7 +60,7 @@ export default function App() {
       const savedAt = new Date().toISOString();
       await guardarLocal({ auditoria: a, savedAt });
       setIsSaved(false);
-      showToast(`${err.message}. Quedó una copia en este navegador.`);
+      showToast(`${err.message}. Quedó una copia en este navegador.`, true);
       return false;
     } finally {
       setIsSaving(false);
@@ -106,7 +109,7 @@ export default function App() {
       showToast(`${resumen} Guardando…`);
       if (await guardar(res, true)) showToast(`${resumen} Guardado.`);
     } catch (err: any) {
-      showToast(err.message || 'No se pudo leer el archivo.');
+      showToast(err.message || 'No se pudo leer el archivo.', true);
     }
   };
 
@@ -141,7 +144,8 @@ export default function App() {
         lastSavedAt={lastSavedAt}
       />
 
-      {auditoria && persistente === false && (
+      {/* Solo en el Paso 1: en los demás pasos (lo que se muestra al jurado) no hace falta */}
+      {auditoria && persistente === false && currentPhase === 'paso1_carga' && (
         <div className="bg-amber-50 dark:bg-amber-950/40 border-b border-amber-200 dark:border-amber-900 text-amber-800 dark:text-amber-200 text-xs">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
             El servidor guarda la validación en un disco temporal: si se reinicia o se duerme por inactividad, se borra.
@@ -152,8 +156,10 @@ export default function App() {
 
       {toastMessage && (
         <div className="fixed bottom-5 right-5 z-50 bg-slate-900 text-white px-4 py-2.5 rounded-xl shadow-xl border border-slate-700 flex items-center gap-2.5 text-xs max-w-md">
-          <Check className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
-          <span className="leading-tight">{toastMessage}</span>
+          {toastMessage.error
+            ? <AlertTriangle className="h-3.5 w-3.5 text-amber-400 shrink-0" />
+            : <Check className="h-3.5 w-3.5 text-emerald-400 shrink-0" />}
+          <span className="leading-tight">{toastMessage.texto}</span>
         </div>
       )}
 

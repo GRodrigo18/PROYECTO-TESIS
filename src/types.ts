@@ -109,6 +109,7 @@ export interface PuntoCurva {
 }
 
 export interface InformeMetricas {
+  generado_en?: string;
   cursos?: string[];
   n_arboles_modelo_final?: number;
   validacion_exclusion: {
