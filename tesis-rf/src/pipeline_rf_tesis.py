@@ -31,6 +31,7 @@ import json
 import re
 import sys
 import unicodedata
+from datetime import datetime
 from pathlib import Path
 
 import joblib
@@ -431,6 +432,7 @@ def ejecutar(ruta_datos: Path, salida: Path, n_iter: int = 40, anio_test: int = 
             salida / "predicciones_2026.csv", index=False, encoding="utf-8-sig")
 
     informe = {
+        "generado_en": datetime.now().astimezone().isoformat(timespec="seconds"),
         "cursos": cursos,
         "n_arboles_modelo_final": len(final.named_steps["rf"].estimators_),
         "validacion_exclusion": resumen_excl,

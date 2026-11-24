@@ -1,7 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { UploadCloud, Download, RefreshCw } from 'lucide-react';
 import { ResultadoAuditoria } from '../types';
-import { descargarPlantilla } from '../utils/exportar';
 import { Aviso, Card, NavPasos, Stat, miles } from './ui';
 
 interface Props {
@@ -61,7 +60,7 @@ export const Paso1CargaSection: React.FC<Props> = ({ auditoria, onFileUpload, on
         </div>
 
         <div className="flex flex-wrap items-center justify-between gap-3 mt-6 pt-5 border-t border-slate-100 dark:border-slate-800">
-          <button type="button" onClick={descargarPlantilla}
+          <button type="button" onClick={() => import('../utils/exportar').then(m => m.descargarPlantilla())}
             className="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold border border-slate-300 dark:border-slate-700 cursor-pointer flex items-center gap-1.5">
             <Download className="w-3.5 h-3.5" />
             <span>Plantilla por bimestre (.xlsx)</span>

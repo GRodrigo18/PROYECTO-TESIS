@@ -92,7 +92,8 @@ python src/pipeline_rf_tesis.py --datos data/notas.xlsx --salida resultados/ --n
         <p className="text-xs text-slate-500 dark:text-slate-400 mt-2 leading-relaxed max-w-3xl">
           Variables: notas de B1 y B2 y sus derivadas, grado, sede y sexo. Etiqueta: algún curso con nota final en C.
           Entrenamiento {inf.particion.entrenamiento} con validación cruzada dejando un año fuera; prueba {inf.particion.prueba};
-          modelo final reentrenado con 2020-{inf.particion.prueba}. Resultados generados el {resultados?.generado_en ? new Date(resultados.generado_en).toLocaleString('es-PE') : '—'}.
+          modelo final reentrenado con 2020-{inf.particion.prueba}.
+          {resultados?.generado_en && <> Resultados generados el {new Date(resultados.generado_en).toLocaleString('es-PE')}.</>}
         </p>
       </Card>
 

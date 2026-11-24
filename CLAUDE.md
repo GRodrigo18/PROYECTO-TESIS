@@ -169,6 +169,13 @@ y `src/utils/validacion.ts`, y volver a correr `scripts/verificar_validacion.ts`
 variable `PREDICCIONES_2026`. Las versiones de `tesis-rf/requirements.txt` son las del
 entrenamiento: si se cambian, hay que reentrenar.
 
+**Validación guardada (Paso 1-2).** Se guarda sola al subir el Excel. En el servidor va a
+PostgreSQL si existe `DATABASE_URL` (Neon o Supabase gratis; en Render se pega en Environment);
+si no, a un archivo en `DATA_DIR` (por defecto `./data`), que en el plan gratuito de Render se
+borra cada vez que el servicio se duerme o se redespliega. Además queda una copia en el navegador
+(IndexedDB) que se vuelve a subir si el servidor la perdió. Ver `almacenamiento.ts`.
+`predecir.py --servidor` queda abierto con el modelo cargado (server.ts lo reutiliza).
+
 ## Dashboard
 
 El dashboard no calcula ni ajusta ninguna métrica del modelo. Valida el Excel en el navegador
