@@ -1,7 +1,4 @@
 @echo off
-rem Plan B: corre el sistema completo en esta computadora (sin Render ni base de datos externa).
-rem Doble clic para abrirlo. La primera vez instala lo necesario (requiere internet);
-rem despues arranca sin internet. Guia completa: PLAN_B_DEMO.md
 setlocal EnableExtensions
 title Riesgo academico RF - modo local
 cd /d "%~dp0"
@@ -11,12 +8,10 @@ echo   Riesgo academico temprano - Random Forest - modo local
 echo ============================================================
 echo.
 
-rem ---------- 1. Node.js ----------
 where node >nul 2>nul
 if errorlevel 1 goto :sin_node
 for /f "delims=" %%v in ('node -v') do echo [OK] Node.js %%v
 
-rem ---------- 2. Python 3.13 en tesis-rf\.venv ----------
 set "VENV=%CD%\tesis-rf\.venv"
 set "PY=%VENV%\Scripts\python.exe"
 if exist "%PY%" goto :python_listo
@@ -41,7 +36,6 @@ if errorlevel 1 goto :error_pip
 :paquetes_ok
 "%PY%" -c "import sys, sklearn; print('[OK] Python', sys.version.split()[0], '/ scikit-learn', sklearn.__version__)"
 
-rem ---------- 3. Paquetes de Node y compilacion del dashboard ----------
 if exist "node_modules\.bin\tsx.cmd" goto :npm_ok
 echo [..] Instalando paquetes de Node - solo la primera vez, unos minutos
 call npm install --no-audit --no-fund
@@ -58,7 +52,6 @@ echo [AVISO] No se pudo recompilar; se usa la version anterior del dashboard.
 :build_ok
 echo [OK] Dashboard listo
 
-rem ---------- 4. Archivos de resultados ----------
 if not exist "tesis-rf\resultados\modelo_rf.joblib" echo [AVISO] Falta tesis-rf\resultados\modelo_rf.joblib: el simulador quedara deshabilitado.
 if exist "tesis-rf\resultados\predicciones_2026.csv" goto :pred_ok
 echo.
@@ -70,7 +63,6 @@ goto :puerto
 :pred_ok
 echo [OK] predicciones_2026.csv encontrado
 
-rem ---------- 5. Arranque ----------
 :puerto
 for /f "delims=" %%p in ('node scripts\puerto_libre.cjs 3000') do set "PORT=%%p"
 if not "%PORT%"=="3000" echo [AVISO] El puerto 3000 esta ocupado - quiza quedo abierta otra ventana del sistema. Se usa el %PORT%.
@@ -93,7 +85,6 @@ echo El servidor se detuvo.
 pause
 exit /b 0
 
-rem ---------- Errores ----------
 :sin_node
 echo [ERROR] No se encontro Node.js.
 echo         Instale la version LTS desde https://nodejs.org - opciones por defecto -

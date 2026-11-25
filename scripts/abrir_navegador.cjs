@@ -1,5 +1,3 @@
-// Espera a que el servidor local responda en /api/health y abre el navegador.
-// Lo usan iniciar_demo.bat e iniciar_demo.sh. Uso: node scripts/abrir_navegador.cjs <puerto>
 const http = require('http');
 const { exec } = require('child_process');
 
@@ -27,7 +25,7 @@ function intentar() {
         console.log(`  Modelo: ${h.modelo ? 'OK' : 'FALTA'} | Metricas: ${h.informe_metricas ? 'OK' : 'FALTA'} | Predicciones 2026: ${h.predicciones_2026} alumnos`);
         console.log('  No cierre esta ventana durante la presentacion.');
         console.log('');
-      } catch { /* solo informativo */ }
+      } catch {}
       abrir();
     });
   });

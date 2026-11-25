@@ -1,5 +1,3 @@
-// Imprime el primer puerto libre desde el indicado (3000 por defecto).
-// Lo usan iniciar_demo.bat e iniciar_demo.sh para no chocar con otra ventana que quedo abierta.
 const net = require('net');
 
 function probar(p) {
